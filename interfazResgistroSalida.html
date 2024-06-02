@@ -44,15 +44,40 @@
         </div>
 
         <!-- Botones para registrar entrada y salida -->
-        <div class="mt-3">
-            <button class="btn btn-success" onclick="registrarEntrada()">Registrar Entrada</button>
-            <button class="btn btn-danger" onclick="registrarSalida()">Registrar Salida</button>
+        <div class="card mt-3">
+            <div class="card-body text-center">
+                <button class="btn btn-success me-2" onclick="registrarEntrada()">Registrar Entrada</button>
+                <button class="btn btn-danger" onclick="registrarSalida()">Registrar Salida</button>
+            </div>
         </div>
 
-        <!-- Historial semanal -->
+        <!-- Sección para verificar registros -->
         <div class="card mt-3">
             <div class="card-body">
-                <h5 class="card-title">Historial Semanal de Asistencia</h5>
+                <h5 class="card-title">Verificar Registro de Hoy</h5>
+                <div id="verificarResultado" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Opciones para reportes -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">Reportes</h5>
+                <div class="mb-3">
+                    <button class="btn btn-secondary" onclick="mostrarReporteSemanal()">Ver Reporte Semanal</button>
+                </div>
+                <div>
+                    <label for="mesReporte" class="form-label">Selecciona el Mes:</label>
+                    <input type="month" id="mesReporte" class="form-control" />
+                    <button class="btn btn-secondary mt-2" onclick="mostrarReporteMensual()">Ver Reporte Mensual</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resultados de reportes -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">Resultados del Reporte Semanal</h5>
                 <table class="table">
                     <thead>
                         <tr>
@@ -64,14 +89,31 @@
                             <th scope="col">Horas Trabajadas</th>
                         </tr>
                     </thead>
-                    <tbody id="historial">
+                    <tbody id="reporteSemanal">
                         <!-- Los registros se añadirán aquí -->
                     </tbody>
                 </table>
-                <div class="mt-3">
-                    <button class="btn btn-primary" onclick="calcularTotal()">Calcular Horas Totales</button>
-                    <p>Total Horas Trabajadas: <span id="totalHoras">0</span></p>
-                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">Resultados del Reporte Mensual</h5>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Día</th>
+                            <th scope="col">Entrada Matutina</th>
+                            <th scope="col">Salida Matutina</th>
+                            <th scope="col">Entrada Vespertina</th>
+                            <th scope="col">Salida Vespertina</th>
+                            <th scope="col">Horas Trabajadas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reporteMensual">
+                        <!-- Los registros se añadirán aquí -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -81,38 +123,102 @@
     <script>
         // Datos simulados para la semana
         var registros = [
-            { dia: 'Lunes', entradaM: '07:00', salidaM: '13:00', entradaV: '14:00', salidaV: '20:00', horasTrabajadas: 12 },
-            { dia: 'Martes', entradaM: '07:00', salidaM: '13:00', entradaV: '14:00', salidaV: '20:00', horasTrabajadas: 12 },
-            { dia: 'Miércoles', entradaM: '07:00', salidaM: '13:00', entradaV: '14:00', salidaV: '20:00', horasTrabajadas: 12 },
-            { dia: 'Jueves', entradaM: '07:00', salidaM: '13:00', entradaV: '14:00', salidaV: '20:00', horasTrabajadas: 12 },
-            { dia: 'Viernes', entradaM: '07:00', salidaM: '13:00', entradaV: '14:00', salidaV: '20:00', horasTrabajadas: 12 }
+            { dia: 'Lunes', entradaM: '07:00', salidaM: '13:00', entradaV: '14:00', salidaV: '20:00', horasTrabajadas: 12, fecha: '2023-05-29' },
+            { dia: 'Martes', entradaM: '07:00', salidaM: '13:00', entradaV: '14:00', salidaV: '20:00', horasTrabajadas: 12, fecha: '2023-05-30' },
+            { dia: 'Miércoles', entradaM: '07:00', salidaM: '13:00', entradaV: '14:00', salidaV: '20:00', horasTrabajadas: 12, fecha: '2023-05-31' },
+            { dia: 'Jueves', entradaM: '07:00', salidaM: '13:00', entradaV: '14:00', salidaV: '20:00', horasTrabajadas: 12, fecha: '2023-06-01' },
+            { dia: 'Viernes', entradaM: '07:00', salidaM: '13:00', entradaV: '14:00', salidaV: '20:00', horasTrabajadas: 12, fecha: '2023-06-02' }
         ];
 
+        // Emulación del registro del día de hoy con entrada y salida en la jornada matutina, pero solo entrada en la jornada vespertina
+        var now = new Date();
+        var today = now.toISOString().split('T')[0];
+        registros.push({
+            dia: ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"][now.getDay()],
+            entradaM: '07:00',
+            salidaM: '13:00',
+            entradaV: '14:00',
+            salidaV: '', // No se ha registrado la salida vespertina
+            horasTrabajadas: 6, // Solo se cuentan las horas matutinas
+            fecha: today
+        });
+
         window.onload = function() {
-            actualizarTabla();
+            verificarRegistroHoy();
         };
 
-        function actualizarTabla() {
-            var tbody = document.getElementById('historial');
-            tbody.innerHTML = '';
-            registros.forEach(function(r) {
-                var row = `<tr>
-                    <td>${r.dia}</td>
-                    <td>${r.entradaM}</td>
-                    <td>${r.salidaM}</td>
-                    <td>${r.entradaV}</td>
-                    <td>${r.salidaV}</td>
-                    <td>${r.horasTrabajadas}</td>
-                </tr>`;
-                tbody.innerHTML += row;
+        function verificarRegistroHoy() {
+            var now = new Date();
+            var today = now.toISOString().split('T')[0];
+            var registro = registros.find(r => r.fecha === today);
+            var resultado = document.getElementById('verificarResultado');
+
+            if (registro) {
+                resultado.innerHTML = `
+                    <p><strong>Entrada Matutina:</strong> ${registro.entradaM}</p>
+                    <p><strong>Salida Matutina:</strong> ${registro.salidaM}</p>
+                    <p><strong>Entrada Vespertina:</strong> ${registro.entradaV}</p>
+                    <p><strong>Salida Vespertina:</strong> ${registro.salidaV || 'No registrada'}</p>
+                `;
+            } else {
+                resultado.textContent = 'No se encontraron registros para el día de hoy.';
+            }
+        }
+
+        function registrarEntrada() {
+            // Lógica para registrar la entrada
+        }
+
+        function registrarSalida() {
+            // Lógica para registrar la salida
+        }
+
+        function mostrarReporteSemanal() {
+            var resultado = document.getElementById('reporteSemanal');
+            resultado.innerHTML = '';
+            var registrosSemana = registros.slice(-7); // Últimos 7 registros para el reporte semanal
+
+            registrosSemana.forEach(function(r) {
+                resultado.innerHTML += `
+                    <tr>
+                        <td>${r.dia}</td>
+                        <td>${r.entradaM}</td>
+                        <td>${r.salidaM}</td>
+                        <td>${r.entradaV}</td>
+                        <td>${r.salidaV || 'No registrada'}</td>
+                        <td>${r.horasTrabajadas}</td>
+                    </tr>
+                `;
             });
         }
 
-        function calcularTotal() {
-            var total = registros.reduce(function(acc, curr) {
-                return acc + parseFloat(curr.horasTrabajadas);
-            }, 0);
-            document.getElementById('totalHoras').textContent = total.toFixed(2);
+        function mostrarReporteMensual() {
+            var mesSeleccionado = document.getElementById('mesReporte').value;
+            var resultado = document.getElementById('reporteMensual');
+            resultado.innerHTML = '';
+
+            if (mesSeleccionado) {
+                var registrosMes = registros.filter(r => r.fecha.startsWith(mesSeleccionado));
+
+                if (registrosMes.length > 0) {
+                    registrosMes.forEach(function(r) {
+                        resultado.innerHTML += `
+                            <tr>
+                                <td>${r.dia}</td>
+                                <td>${r.entradaM}</td>
+                                <td>${r.salidaM}</td>
+                                <td>${r.entradaV}</td>
+                                <td>${r.salidaV || 'No registrada'}</td>
+                                <td>${r.horasTrabajadas}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    resultado.innerHTML = '<tr><td colspan="6" class="text-center">No se encontraron registros para el mes seleccionado.</td></tr>';
+                }
+            } else {
+                resultado.innerHTML = '<tr><td colspan="6" class="text-center">Por favor, selecciona un mes válido.</td></tr>';
+            }
         }
     </script>
 </body>
