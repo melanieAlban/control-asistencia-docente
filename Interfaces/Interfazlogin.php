@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -64,6 +67,15 @@
             font-size: 20px;
             color: rgba(110, 7, 7, 0.7);
         }
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: rgba(110, 7, 7, 0.7);
+            cursor: pointer;
+        }
         .btn-custom {
             background-color: rgb(110, 7, 7);
             color: white;
@@ -90,17 +102,24 @@
                 <h1>Bienvenido</h1>
             </div>
             <div class="col-md-6 login-right">
-                <form class="login-form" method="POST" id="fm" action="../servicios/login.php">
+                <form class="login-form" method="POST" action="/cuarto/control-asistencia-docente/controladores/login_controller.php">
                     <h2 class="mb-4">Acceso Docentes</h2>
+                    <?php
+                    if (isset($_SESSION['error'])) {
+                        echo "<div class='alert alert-danger'>{$_SESSION['error']}</div>";
+                        unset($_SESSION['error']);
+                    }
+                    ?>
                     <div class="form-group">
                         <i class="fas fa-user form-icon"></i>
-                        <input name ="cedula" type="text" class="form-control" placeholder="Usuario o Identificación" required>
+                        <input name="cedula" type="text" class="form-control" placeholder="Usuario o Identificación" required>
                     </div>
                     <div class="form-group">
                         <i class="fas fa-lock form-icon"></i>
-                        <input name = "password" type="password" class="form-control" placeholder="Contraseña" required>
+                        <input name="password" type="password" class="form-control" id="password" placeholder="Contraseña" required>
+                        <i class="fas fa-eye toggle-password" id="togglePassword"></i>
                     </div>
-                    <button type="submit" class="btn btn-custom">Iniciar sesión</button>
+                    <button type="submit" class="btn btn-custom" name="btniniciarSesion">Iniciar sesión</button>
                 </form>
             </div>
         </div>
@@ -109,6 +128,14 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
+    <script>
+        document.getElementById('togglePassword').addEventListener('click', function (e) {
+            const password = document.getElementById('password');
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    </script>
 </body>
 </html>

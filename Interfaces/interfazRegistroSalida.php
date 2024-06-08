@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (empty($_SESSION["id"])) {
+    header("Location: Interfazlogin.php");
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,8 +15,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h1 class="mt-5">Bienvenido/a, [Nombre del Usuario]</h1>
+<div class="container">
+        <div class="d-flex justify-content-between align-items-center mt-5">
+            <h1>Bienvenido/a <?php echo $_SESSION["nombre"] . ' ' . $_SESSION["apellido"]; ?></h1>
+            <a href="../Controladores/cerrar_sesion_controller.php" class="btn btn-danger">Cerrar Sesión</a>
+        </div>
         
         <!-- Reloj en vivo -->
         <div class="card text-center mt-3">
@@ -37,11 +47,15 @@
         <!-- Información del horario del usuario -->
         <div class="card mt-3">
             <div class="card-body">
-                <h5 class="card-title">Tus Horarios de Trabajo</h5>
-                <p>Jornada Matutina: 07:00 AM - 01:00 PM</p>
-                <p>Jornada Vespertina: 02:00 PM - 08:00 PM</p>
+                <h4 class="card-title">Tus Horarios de Trabajo</h4>
+                <?php
+                include("../Controladores/obtener_horarios.php");
+                ?>
+                <p>Jornada Matutina: <?php echo $jornadaMatutina; ?></p>
+                <p>Jornada Vespertina: <?php echo $jornadaVespertina; ?></p>
             </div>
         </div>
+    </div>
 
         <!-- Botones para registrar entrada y salida -->
         <div class="card mt-3">
