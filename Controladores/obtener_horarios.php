@@ -13,9 +13,9 @@ if (isset($_SESSION['id'])) {
     $resultado = array();
     if ($respuesta->num_rows > 0) {
         while($fila = $respuesta->fetch_array()){
-            if ($fila['tipo_jornada'] == 'MAT') {
+            if ($fila['jornada'] == 'MAT') {
                 $jornadaMatutina = $fila['entrada'] . ' - ' . $fila['salida'];
-            } else if ($fila['tipo_jornada'] == 'VES') {
+            } else if ($fila['jornada'] == 'VES') {
                 $jornadaVespertina = $fila['entrada'] . ' - ' . $fila['salida'];
             }
             array_push($resultado, $fila);

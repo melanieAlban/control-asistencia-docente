@@ -12,9 +12,10 @@ if (isset($_POST['btniniciarSesion'])) {
 
     if ($respuesta->num_rows > 0) {
         $datos = $respuesta->fetch_object();
-        $_SESSION['id'] = $datos->id_empleado;
+        $_SESSION['id'] = $datos->id;
         $_SESSION['nombre'] = $datos->nombre;
         $_SESSION['apellido'] = $datos->apellido;
+        $_SESSION['rol'] = $datos->rol;
         if ($datos->rol == 'empleado') {
             header("Location: ../Interfaces/interfazRegistroSalida.php");
         } else if ($datos->rol == 'administrador') {

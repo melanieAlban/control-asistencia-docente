@@ -1,5 +1,16 @@
 <?php
-session_start();  // Debe ser la primera línea después de la etiqueta PHP
+session_start();
+if (empty($_SESSION["id"])) {
+    header("Location: Interfazlogin.php");
+    exit();
+}
+
+// Verificar si el usuario tiene el rol de empleado o administrador
+if ($_SESSION['rol'] == 'empleado') {
+    // Si el usuario es un empleado, redirigir a la interfaz del empleado
+    header("Location: interfazRegistroSalida.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">

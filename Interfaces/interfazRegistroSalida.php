@@ -3,6 +3,11 @@ session_start();
 if (empty($_SESSION["id"])) {
     header("Location: Interfazlogin.php");
 }
+if ($_SESSION['rol'] == 'administrador') {
+    // Si el usuario es un empleado, redirigir a la interfaz del empleado
+    header("Location: interfazRegistroDocente.php");
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
