@@ -9,6 +9,22 @@ if (isset($_POST['cedulaDocente'], $_POST['nombreDocente'], $_POST['apellidoDoce
     $conn = new Conexion();
     $con = $conn->conectar();
 
+        //////// validar que la cedula sea unica
+        $query = "SELECT COUNT(*) FROM empleados WHERE cedula = ?";
+        $stmt = $con->prepare($query);
+        $stmt->bind_param("s", $_POST['cedulaDocente']);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        $stmt->close();
+    
+        if ($count > 0) {
+            $_SESSION['error'] = 'La cédula ingresada ya está registrada.';
+            header("Location: ../Interfaces/interfazRegistroDocente.php");
+            exit;
+        }
+        ///////
+
     $sqlDocente = $con->prepare("INSERT INTO empleados (nombre, apellido, cedula, password, estado, rol) VALUES (?, ?, ?, ?, 'ACT', 'empleado')");
     $sqlDocente->bind_param("ssss", $_POST['nombreDocente'], $_POST['apellidoDocente'], $_POST['cedulaDocente'], $_POST['cedulaDocente']);
 
