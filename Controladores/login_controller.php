@@ -15,10 +15,10 @@ if (isset($_POST['btniniciarSesion'])) {
         $_SESSION['id'] = $datos->id_empleado;
         $_SESSION['nombre'] = $datos->nombre;
         $_SESSION['apellido'] = $datos->apellido;
-        if ($datos->tipo_rol == 'empleado') {
+        if ($datos->rol == 'empleado') {
             header("Location: ../Interfaces/interfazRegistroSalida.php");
-        } else if ($datos->tipo_rol == 'administrador') {
-            header("Location: ../Interfaces/interfazRegistroDocente.html");
+        } else if ($datos->rol == 'administrador') {
+            header("Location: ../Interfaces/interfazRegistroDocente.php");
         }
     } else {
         $_SESSION['error'] = "Credenciales inválidas";

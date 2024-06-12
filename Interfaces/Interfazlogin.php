@@ -102,7 +102,7 @@ session_start();
                 <h1>Bienvenido</h1>
             </div>
             <div class="col-md-6 login-right">
-                <form class="login-form" method="POST" action="/cuarto/control-asistencia-docente/controladores/login_controller.php">
+                <form class="login-form" method="POST" action="/Proyectofinal/control-asistencia-docente/controladores/login_controller.php">
                     <h2 class="mb-4">Acceso Docentes</h2>
                     <?php
                     if (isset($_SESSION['error'])) {
