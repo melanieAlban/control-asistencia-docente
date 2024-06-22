@@ -22,7 +22,11 @@ class RegistroAsistencia
     {
         date_default_timezone_set('America/Guayaquil');
         $this->fecha = date('Y-m-d');
-        $this->hora = date('H:i:s');
+       $this->hora = date('H:i:s');
+       //$this->hora = '06:45:00';
+       //$this->hora = '11:50:00';
+       //$this->hora = '14:20:00';
+       //$this->hora = '17:10:00';
         $this->idEmpleado = $idEmpleado;
 
         // Obtener horario del empleado
@@ -53,11 +57,17 @@ class RegistroAsistencia
         $resultDetalleAsistencia = $this->db->query($sqlSelectDetalleAsistencia);
 
         if ($resultDetalleAsistencia->num_rows == 0) {
+            if ($this->hora > $this -> horaSalida) {
+                return "No cumple con su hora de ingreso";
+            }
             $sqlInsertDetalleAsistencia = "INSERT INTO detalle_asistencias (id_asistencia, hora_ingreso, jornada, horas_trabajadas, subtotal_generado) VALUES ('$this->idAsistencia', '$this->hora', '$this->jornada', 0, 0)";
             $this->db->query($sqlInsertDetalleAsistencia);
             $this->aplicarDescuentoAtraso();
             return "Registro de ingreso exitoso";
         } else {
+            if ($this->hora < $this -> horaEntrada) {
+                return "No cumple con su hora de salida";
+            }
             $detalleAsistencia = $resultDetalleAsistencia->fetch_object();
             if ($detalleAsistencia->hora_salida == null) {
                 $this->actualizarDetalleAsistencia($detalleAsistencia);
@@ -90,7 +100,13 @@ class RegistroAsistencia
     {
         $horasTotalesObligatorias = (strtotime($this->horaSalida) - strtotime($this->horaEntrada)) / 3600;
         $horaIngreso = strtotime($detalle->hora_ingreso);
+        if ($detalle->hora_ingreso < $this->horaEntrada) {
+            $horaIngreso=strtotime($this->horaEntrada);
+        }
         $horaSalida = strtotime($this->hora);
+        if ($this->hora > $this->horaSalida) {
+            $horaSalida=strtotime($this->horaSalida);
+        }
         $tiempoTrabajado = $horaSalida - $horaIngreso;
         $horasTrabajadas = $tiempoTrabajado / 3600;
         $horasDate = gmdate('H:i:s', $tiempoTrabajado);
