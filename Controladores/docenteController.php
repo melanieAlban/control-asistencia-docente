@@ -1,6 +1,6 @@
 <?php
 session_start(); // Esto debe estar al principio, antes de cualquier salida.
-include '../servicios/conexion.php';
+require_once  '../servicios/conexion.php';
 
 if (isset($_POST['cedulaDocente'], $_POST['nombreDocente'], $_POST['apellidoDocente'],
     $_POST['horaInicioMatutina'], $_POST['horaFinMatutina'], $_POST['horaInicioVespertina'],

@@ -1,5 +1,5 @@
 <?php
-include '../servicios/conexion.php';
+require_once  '../servicios/conexion.php';
 
 $jornadaMatutina = 'No registrada';
 $jornadaVespertina = 'No registrada';

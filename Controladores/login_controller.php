@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../servicios/conexion.php';
+require_once  '../servicios/conexion.php';
 if (isset($_POST['btniniciarSesion'])) {
     $cedula = $_POST['cedula'];
     $password = $_POST['password'];
