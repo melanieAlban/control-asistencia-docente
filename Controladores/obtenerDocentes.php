@@ -13,7 +13,7 @@ function obtenerListaDocentes($cedula = null) {
     $query = "SELECT id, nombre, apellido, cedula FROM empleados WHERE estado= 'ACT'";
     
     if ($cedula) {
-        $query .= " WHERE cedula LIKE ?";
+        $query .= " AND cedula LIKE ?";
     }
     
     $stmt = $con->prepare($query);

@@ -95,18 +95,16 @@ $docentes = obtenerListaDocentes();
             color: #800020;
         }
         .icon-delete {
-    color: #6c757d; /* Color gris */
-}
-.swal2-confirm {
-    background-color: #800020 !important;
-    border-color: #800020 !important;
-}
-
-.swal2-cancel {
-    background-color: #6c757d !important;
-    border-color: #6c757d !important;
-}
-
+            color: #6c757d;
+        }
+        .swal2-confirm {
+            background-color: #800020 !important;
+            border-color: #800020 !important;
+        }
+        .swal2-cancel {
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+        }
         .icon-edit:hover,
         .icon-report:hover,
         .icon-delete:hover {
@@ -329,8 +327,8 @@ $docentes = obtenerListaDocentes();
                             text: "No podrá revertir esto",
                             icon: 'warning',
                             showCancelButton: true,
-                            confirmButtonColor: '#3085d6',
-                            cancelButtonColor: '#d33',
+                            confirmButtonColor: '#800020',
+                            cancelButtonColor: '#6c757d',
                             confirmButtonText: 'Sí, eliminarlo'
                         }).then((result) => {
                             if (result.isConfirmed) {
