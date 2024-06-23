@@ -10,7 +10,7 @@ function obtenerListaDocentes($cedula = null) {
         die("Conexión fallida: " . $con->connect_error);
     }
     
-    $query = "SELECT id, nombre, apellido, cedula FROM empleados WHERE estado= 'ACT'";
+    $query = "SELECT id, nombre, apellido, cedula FROM empleados WHERE estado= 'ACT' AND rol != 'administrador' ";
     
     if ($cedula) {
         $query .= " AND cedula LIKE ?";
