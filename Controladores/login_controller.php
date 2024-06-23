@@ -15,6 +15,7 @@ if (isset($_POST['btniniciarSesion'])) {
         $_SESSION['id'] = $datos->id;
         $_SESSION['nombre'] = $datos->nombre;
         $_SESSION['apellido'] = $datos->apellido;
+        $_SESSION['cedula'] = $datos->cedula;
         $_SESSION['rol'] = $datos->rol;
         if ($datos->rol == 'empleado') {
             header("Location: ../Interfaces/interfazRegistroSalida.php");
