@@ -25,6 +25,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mensaje = registrarAsistencia('salida');
     }
 }
+
+require_once('../Controladores/resgistro_asistencia.php');
+
+$idEmpleado = $_SESSION['id'];
+$fecha = date('Y-m-d');
+$registroAsistencia = new RegistroAsistencia();
+$horasRegistradas = $registroAsistencia->obtenerHorasRegistradas($idEmpleado, $fecha );
+$registros = [];
+
+if ($horasRegistradas) {
+    $registro = [
+        'entradaM' => '',
+        'salidaM' => '',
+        'entradaV' => '',
+        'salidaV' => '',
+    ];
+
+    foreach ($horasRegistradas as $hora) {
+        if ($hora['jornada'] == 'MAT') {
+            $registro['entradaM'] = $hora['hora_ingreso'];
+            $registro['salidaM'] = $hora['hora_salida'];
+        } elseif ($hora['jornada'] == 'VES') {
+            $registro['entradaV'] = $hora['hora_ingreso'];
+            $registro['salidaV'] = $hora['hora_salida'];
+        }
+    }
+
+    $registros[] = $registro;
+} 
+
 ?>
 
 <!DOCTYPE html>
@@ -151,64 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        var registros = [{
-                dia: 'Lunes',
-                entradaM: '07:00',
-                salidaM: '13:00',
-                entradaV: '14:00',
-                salidaV: '20:00',
-                horasTrabajadas: 12,
-                fecha: '2023-05-29'
-            },
-            {
-                dia: 'Martes',
-                entradaM: '07:00',
-                salidaM: '13:00',
-                entradaV: '14:00',
-                salidaV: '20:00',
-                horasTrabajadas: 12,
-                fecha: '2023-05-30'
-            },
-            {
-                dia: 'Miércoles',
-                entradaM: '07:00',
-                salidaM: '13:00',
-                entradaV: '14:00',
-                salidaV: '20:00',
-                horasTrabajadas: 12,
-                fecha: '2023-05-31'
-            },
-            {
-                dia: 'Jueves',
-                entradaM: '07:00',
-                salidaM: '13:00',
-                entradaV: '14:00',
-                salidaV: '20:00',
-                horasTrabajadas: 12,
-                fecha: '2023-06-01'
-            },
-            {
-                dia: 'Viernes',
-                entradaM: '07:00',
-                salidaM: '13:00',
-                entradaV: '14:00',
-                salidaV: '20:00',
-                horasTrabajadas: 12,
-                fecha: '2023-06-02'
-            }
-        ];
-
-        var now = new Date();
-        var today = now.toISOString().split('T')[0];
-        registros.push({
-            dia: ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"][now.getDay()],
-            entradaM: '07:00',
-            salidaM: '13:00',
-            entradaV: '14:00',
-            salidaV: '',
-            horasTrabajadas: 6,
-            fecha: today
-        });
+        var registros = <?php echo json_encode($registros); ?>;
 
         window.onload = function() {
             verificarRegistroHoy();
@@ -226,16 +199,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php } ?>
 
         function verificarRegistroHoy() {
-            var now = new Date();
-            var today = now.toISOString().split('T')[0];
-            var registro = registros.find(r => r.fecha === today);
+            //la consulta que hice, ya llama con la fecha de hoy asi que aqui no hay que buscar todos
+            //el sql ya devuelve la fecha de hoy
             var resultado = document.getElementById('verificarResultado');
-
-            if (registro) {
+            if (registros.length > 0) {
+                var registro = registros[0];
                 resultado.innerHTML = `
-                    <p><strong>Entrada Matutina:</strong> ${registro.entradaM}</p>
-                    <p><strong>Salida Matutina:</strong> ${registro.salidaM}</p>
-                    <p><strong>Entrada Vespertina:</strong> ${registro.entradaV}</p>
+                    <p><strong>Entrada Matutina:</strong> ${registro.entradaM || 'No registrada'}</p>
+                    <p><strong>Salida Matutina:</strong> ${registro.salidaM || 'No registrada'}</p>
+                    <p><strong>Entrada Vespertina:</strong> ${registro.entradaV || 'No registrada'}</p>
                     <p><strong>Salida Vespertina:</strong> ${registro.salidaV || 'No registrada'}</p>
                 `;
             } else {
