@@ -139,4 +139,24 @@ class RegistroAsistencia
             $this->db->query($sql);
         }
     }
+
+    public function obtenerHorasRegistradas($idEmpleado, $fecha) {
+        $sql = "SELECT hora_ingreso, hora_salida, jornada FROM detalle_asistencias
+                INNER JOIN asistencias ON detalle_asistencias.id_asistencia = asistencias.id
+                WHERE asistencias.id_empleado = $idEmpleado AND asistencias.fecha = '$fecha'";
+        $result = $this->db->query($sql);
+    
+        if ($result->num_rows > 0) {
+            $horasRegistradas = [];
+            while ($row = $result->fetch_assoc()) {
+                $horasRegistradas[] = $row;
+            }
+            return $horasRegistradas;
+        } else {
+            return null;
+        }
+    }
+    
+    
+    
 }
