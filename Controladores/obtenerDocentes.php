@@ -5,7 +5,7 @@ function obtenerListaDocentes($cedula = null) {
     $conn = new Conexion();
     $con = $conn->conectar();
     
-    // Verifica si la conexión se estableció correctamente
+    // Verifica si la conexión se estableció correctamente..
     if ($con->connect_error) {
         die("Conexión fallida: " . $con->connect_error);
     }
