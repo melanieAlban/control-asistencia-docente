@@ -117,7 +117,7 @@ if ($_SESSION['rol'] == 'empleado') {
             </div>
 
             <!-- Page Content -->
-            <main class="col-md-10 ms-sm-auto col-lg-10 px-md-0">
+            <main class="col-md-10 ms-sm-auto col-lg-10 px-md-2">
                 <div class="header">
                     <h1 class="text-center">Gestor de Turnos y Docentes</h1>
                 </div>

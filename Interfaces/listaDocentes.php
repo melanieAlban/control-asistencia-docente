@@ -124,14 +124,24 @@ $docentes = obtenerListaDocentes();
             max-height: 600px;
             overflow-y: auto;
         }
-        .btn-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-        }
+        
         .modal-content {
             border-radius: 1rem;
         }
+        .btn-color,
+.btn-color:focus,
+.btn-color:active {
+    background-color: #800020;
+    border-color: #800020;
+    color: white;
+    outline: none;
+    box-shadow: none; /* Quitar el resplandor del botón cuando se enfoca o se activa */
+}
+
+.btn-color:hover {
+    background-color: #5a0014;
+    border-color: #5a0014;
+}
     </style>
 </head>
 
@@ -170,7 +180,7 @@ $docentes = obtenerListaDocentes();
             </div>
 
             <!-- Page Content -->
-            <main class="col-md-10 ms-sm-auto col-lg-10 px-md-0">
+            <main class="col-md-10 ms-sm-auto col-lg-10 px-md-2">
                 <div class="header">
                     <h1 class="text-center">Lista de Docentes</h1>
                 </div>
@@ -202,7 +212,7 @@ $docentes = obtenerListaDocentes();
                                             <td class='table-icons'>
                                                 <a href='#' class='icon-edit' data-bs-toggle='modal' data-bs-target='#editDocenteModal' data-id='{$docente['id']}'><i class='fas fa-edit'></i></a>
                                                 <a href='#' class='icon-delete' data-id='{$docente['id']}'><i class='fas fa-trash'></i></a>
-                                                <a href='#' class='icon-report'><i class='fas fa-file-alt'></i></a>
+                                                <a href='#' class='icon-report' data-bs-toggle='modal' data-bs-target='#reporteModal' data-id='{$docente['cedula']}'><i class='fas fa-file-alt'></i></a>
                                             </td>
                                         </tr>";
                                         $contador++;
@@ -268,6 +278,42 @@ $docentes = obtenerListaDocentes();
                         </div>
                         <button type="submit" class="btn btn-primary btn-color">Guardar Cambios</button>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para seleccionar el tipo de reporte -->
+    <div class="modal fade" id="reporteModal" tabindex="-1" aria-labelledby="reporteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reporteModalLabel">Seleccionar Tipo de Reporte</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label for="semanaReporte" class="form-label">Semana:</label>
+                                    <input type="week" id="semanaReporte" name="semanaReporte" class="form-control mb-3">
+                                </div>
+                                <div class="text-center">
+                                    <button type="button" class="btn btn-primary btn-color" id="reporteSemanal">Reporte Semanal</button>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label for="mesReporte" class="form-label">Mes:</label>
+                                    <input type="month" id="mesReporte" name="mesReporte" class="form-control mb-3">
+                                </div>
+                                <div class="text-center">
+                                    <button type="button" class="btn btn-secondary btn-color" id="reporteMensual">Reporte Mensual</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -382,7 +428,7 @@ $docentes = obtenerListaDocentes();
                                     <td class='table-icons'>
                                         <a href='#' class='icon-edit' data-bs-toggle='modal' data-bs-target='#editDocenteModal' data-id='${docente.id}'><i class='fas fa-edit'></i></a>
                                         <a href='#' class='icon-delete' data-id='${docente.id}'><i class='fas fa-trash'></i></a>
-                                        <a href='#' class='icon-report'><i class='fas fa-file-alt'></i></a>
+                                        <a href='#' class='icon-report' data-bs-toggle='modal' data-bs-target='#reporteModal' data-id='${docente.cedula}'><i class='fas fa-file-alt'></i></a>
                                     </td>
                                 </tr>`;
                                 tableBody.insertAdjacentHTML('beforeend', row);
@@ -390,6 +436,7 @@ $docentes = obtenerListaDocentes();
                             });
                             addEditListeners();
                             addDeleteListeners();
+                            addReportListeners();
                         } else {
                             tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No hay datos disponibles</td></tr>';
                         }
@@ -443,8 +490,111 @@ $docentes = obtenerListaDocentes();
                 $('#editDocenteModal').modal('show');
             }
 
+            function addReportListeners() {
+                document.querySelectorAll('.icon-report').forEach(function(element) {
+                    element.addEventListener('click', function() {
+                        const docenteId = this.getAttribute('data-id');
+                        $('#reporteModal').modal('show');
+
+                        document.getElementById('reporteSemanal').onclick = function() {
+                            const semanaReporte = document.getElementById('semanaReporte').value;
+                            if (!semanaReporte) {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Por favor, seleccione una semana.',
+                                    icon: 'error'
+                                });
+                                return;
+                            }
+
+                            const [year, week] = semanaReporte.split('-W');
+                            const currentWeek = getCurrentWeek();
+                            if (year > currentWeek.year || (year == currentWeek.year && week > currentWeek.week)) {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'No se puede seleccionar una semana futura.',
+                                    icon: 'error'
+                                });
+                                return;
+                            }
+
+                            generarReporte('../Reportes/ReporteSemanal.php', docenteId, 'semanaReporte');
+                        };
+
+                        document.getElementById('reporteMensual').onclick = function() {
+                            const mesReporte = document.getElementById('mesReporte').value;
+                            if (!mesReporte) {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Por favor, seleccione un mes.',
+                                    icon: 'error'
+                                });
+                                return;
+                            }
+
+                            const [year, month] = mesReporte.split('-');
+                            const currentDate = new Date();
+                            const currentYear = currentDate.getFullYear();
+                            const currentMonth = currentDate.getMonth() + 1;
+                            if (year > currentYear || (year == currentYear && month > currentMonth)) {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'No se puede seleccionar un mes futuro.',
+                                    icon: 'error'
+                                });
+                                return;
+                            }
+
+                            generarReporte('../Reportes/ReporteMensual.php', docenteId, 'mesReporte');
+                        };
+                    });
+                });
+            }
+
+            function getCurrentWeek() {
+                const date = new Date();
+                const oneJan = new Date(date.getFullYear(), 0, 1);
+                const numberOfDays = Math.floor((date - oneJan) / (24 * 60 * 60 * 1000));
+                const weekNumber = Math.ceil((date.getDay() + 1 + numberOfDays) / 7);
+                return {
+                    year: date.getFullYear(),
+                    week: weekNumber
+                };
+            }
+
+            function generarReporte(url, cedula, inputName) {
+                const inputValue = document.getElementById(inputName).value;
+
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = url;
+                form.target = '_blank';
+
+                const inputCedula = document.createElement('input');
+                inputCedula.type = 'hidden';
+                inputCedula.name = 'cedula';
+                inputCedula.value = cedula;
+
+                const inputDate = document.createElement('input');
+                inputDate.type = 'hidden';
+                inputDate.name = inputName;
+                inputDate.value = inputValue;
+
+                form.appendChild(inputCedula);
+                form.appendChild(inputDate);
+                document.body.appendChild(form);
+                form.submit();
+                document.body.removeChild(form);
+            }
+
+            $('#reporteModal').on('hidden.bs.modal', function () {
+                document.getElementById('semanaReporte').value = '';
+                document.getElementById('mesReporte').value = '';
+            });
+
             addEditListeners();
             addDeleteListeners();
+            addReportListeners();
 
             document.getElementById('editDocenteForm').addEventListener('submit', function(event) {
                 event.preventDefault();
