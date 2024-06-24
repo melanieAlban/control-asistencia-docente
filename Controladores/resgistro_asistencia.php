@@ -22,11 +22,11 @@ class RegistroAsistencia
     {
         date_default_timezone_set('America/Guayaquil');
         $this->fecha = date('Y-m-d');
-       $this->hora = date('H:i:s');
-       //$this->hora = '06:45:00';
-       //$this->hora = '11:50:00';
-       //$this->hora = '14:20:00';
-       //$this->hora = '17:10:00';
+        $this->hora = date('H:i:s');
+        //$this->hora = '06:45:00';
+        //$this->hora = '11:50:00';
+        //$this->hora = '14:20:00';
+        //$this->hora = '17:10:00';
         $this->idEmpleado = $idEmpleado;
 
         // Obtener horario del empleado
@@ -57,7 +57,7 @@ class RegistroAsistencia
         $resultDetalleAsistencia = $this->db->query($sqlSelectDetalleAsistencia);
 
         if ($resultDetalleAsistencia->num_rows == 0) {
-            if ($this->hora > $this -> horaSalida) {
+            if ($this->hora > $this->horaSalida) {
                 return "No cumple con su hora de ingreso";
             }
             $sqlInsertDetalleAsistencia = "INSERT INTO detalle_asistencias (id_asistencia, hora_ingreso, jornada, horas_trabajadas, subtotal_generado) VALUES ('$this->idAsistencia', '$this->hora', '$this->jornada', 0, 0)";
@@ -65,7 +65,7 @@ class RegistroAsistencia
             $this->aplicarDescuentoAtraso();
             return "Registro de ingreso exitoso";
         } else {
-            if ($this->hora < $this -> horaEntrada) {
+            if ($this->hora < $this->horaEntrada) {
                 return "No cumple con su hora de salida";
             }
             $detalleAsistencia = $resultDetalleAsistencia->fetch_object();
@@ -101,11 +101,11 @@ class RegistroAsistencia
         $horasTotalesObligatorias = (strtotime($this->horaSalida) - strtotime($this->horaEntrada)) / 3600;
         $horaIngreso = strtotime($detalle->hora_ingreso);
         if ($detalle->hora_ingreso < $this->horaEntrada) {
-            $horaIngreso=strtotime($this->horaEntrada);
+            $horaIngreso = strtotime($this->horaEntrada);
         }
         $horaSalida = strtotime($this->hora);
         if ($this->hora > $this->horaSalida) {
-            $horaSalida=strtotime($this->horaSalida);
+            $horaSalida = strtotime($this->horaSalida);
         }
         $tiempoTrabajado = $horaSalida - $horaIngreso;
         $horasTrabajadas = $tiempoTrabajado / 3600;
@@ -140,12 +140,13 @@ class RegistroAsistencia
         }
     }
 
-    public function obtenerHorasRegistradas($idEmpleado, $fecha) {
+    public function obtenerHorasRegistradas($idEmpleado, $fecha)
+    {
         $sql = "SELECT hora_ingreso, hora_salida, jornada FROM detalle_asistencias
                 INNER JOIN asistencias ON detalle_asistencias.id_asistencia = asistencias.id
                 WHERE asistencias.id_empleado = $idEmpleado AND asistencias.fecha = '$fecha'";
         $result = $this->db->query($sql);
-    
+
         if ($result->num_rows > 0) {
             $horasRegistradas = [];
             while ($row = $result->fetch_assoc()) {
@@ -156,7 +157,113 @@ class RegistroAsistencia
             return null;
         }
     }
+
+
+    public function reporteMensual($cedula)
+    {
+        date_default_timezone_set('America/Guayaquil');
+        $fechaInicio = date("Y-m-01");
+        $fechaFin = date("Y-m-t");
+        $sql = "SELECT a.fecha, h.entrada, h.salida, h.jornada, da.hora_ingreso, da.hora_salida, da.horas_trabajadas,
+                da.subtotal_generado, a.descuento, a.total_generado
+            FROM empleados e 
+            INNER JOIN horarios h ON h.id_empleado = e.id 
+            INNER JOIN asistencias a ON a.id_empleado = e.id
+            INNER JOIN detalle_asistencias da ON da.id_asistencia = a.id 
+            WHERE e.cedula = '$cedula'
+            AND a.fecha BETWEEN '$fechaInicio' AND '$fechaFin'
+            AND da.jornada = h.jornada
+            ORDER BY a.fecha ASC";
+        $result = $this->db->query($sql);
+        $reportes = [];
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                if (!isset($reportes[$row['fecha']])) {
+                    $reportes[$row['fecha']] = [
+                        'fecha' => $row['fecha'],
+                        'entradaM' => '',
+                        'salidaM' => '',
+                        'entradaV' => '',
+                        'salidaV' => '',
+                        'horasTrabajadas' => 0 
+                    ];
+                }
+                if ($row['jornada'] == 'MAT') {
+                    $reportes[$row['fecha']]['entradaM'] = $row['hora_ingreso'];
+                    $reportes[$row['fecha']]['salidaM'] = $row['hora_salida'];
+                } elseif ($row['jornada'] == 'VES') {
+                    $reportes[$row['fecha']]['entradaV'] = $row['hora_ingreso'];
+                    $reportes[$row['fecha']]['salidaV'] = $row['hora_salida'];
+                }
+           
+                $reportes[$row['fecha']]['horasTrabajadas'] += floatval($row['horas_trabajadas']);
+            }
+        }
+        return array_values($reportes); 
+    }
+
+
+
+    public function reporteSemanal($cedula)
+    {
+        date_default_timezone_set('America/Guayaquil');
+        $hoy = new DateTime();
+        $hoy->setTime(0, 0, 0); // Asegurarse de que la hora esté en 00:00:00 para evitar problemas
+
+        // Obtener el día de la semana (1 para lunes, 7 para domingo)
+        $diaSemana = (int) $hoy->format('N');
+
+        // Calcular la fecha del lunes de la semana actual
+        if ($diaSemana === 7) { // Si es domingo, restar 6 días
+            $hoy->modify('-6 days');
+        } else { // Si no es domingo, restar el número de días que han pasado desde el lunes
+            $hoy->modify('-' . ($diaSemana - 1) . ' days');
+        }
+        $fechaInicioString = $hoy->format('Y-m-d');
+
+        // Calcular la fecha del domingo de la semana actual
+        $fechaFin = clone $hoy;
+        $fechaFin->modify('+6 days');
+        $fechaFinString = $fechaFin->format('Y-m-d');
+
     
-    
-    
+
+        $sql = "SELECT a.fecha, h.entrada, h.salida, h.jornada, da.hora_ingreso, da.hora_salida, da.horas_trabajadas,
+                da.subtotal_generado, a.descuento, a.total_generado 
+            FROM empleados e 
+            INNER JOIN horarios h ON h.id_empleado = e.id 
+            INNER JOIN asistencias a ON a.id_empleado = e.id
+            INNER JOIN detalle_asistencias da ON da.id_asistencia = a.id 
+            WHERE e.cedula = '$cedula'
+            AND a.fecha BETWEEN '$fechaInicioString' AND '$fechaFinString'
+            AND da.jornada = h.jornada 
+            ORDER BY a.fecha ASC";
+        $result = $this->db->query($sql);
+
+        $reportes = [];
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                if (!isset($reportes[$row['fecha']])) {
+                    $reportes[$row['fecha']] = [
+                        'fecha' => $row['fecha'],
+                        'entradaM' => '',
+                        'salidaM' => '',
+                        'entradaV' => '',
+                        'salidaV' => '',
+                        'horasTrabajadas' => 0 
+                    ];
+                }
+                if ($row['jornada'] == 'MAT') {
+                    $reportes[$row['fecha']]['entradaM'] = $row['hora_ingreso'];
+                    $reportes[$row['fecha']]['salidaM'] = $row['hora_salida'];
+                } elseif ($row['jornada'] == 'VES') {
+                    $reportes[$row['fecha']]['entradaV'] = $row['hora_ingreso'];
+                    $reportes[$row['fecha']]['salidaV'] = $row['hora_salida'];
+                }
+           
+                $reportes[$row['fecha']]['horasTrabajadas'] += floatval($row['horas_trabajadas']);
+            }
+        }
+        return array_values($reportes); 
+    }
 }

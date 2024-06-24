@@ -70,9 +70,7 @@ class PDF extends FPDF
    }
 }
 
-   //include '../../recursos/Recurso_conexion_bd.php';
-   //require '../../funciones/CortarCadena.php';
-   /* CONSULTA INFORMACION DEL HOSPEDAJE */
+
    $cedula = $_POST['cedula'];
    $mesReporte = $_POST['mesReporte'];
    list($year, $month) = explode('-', $mesReporte);
@@ -129,8 +127,5 @@ class PDF extends FPDF
    $pdf->Cell(45, 10,"" ,0, 0, 'C', 0);
    $pdf->Cell(35, 10,"TOTAL" ,0, 0, 'C', 0);
    $pdf->Cell(35, 10, utf8_decode($total_generado), 1, 1, 'C', 0);
-
-
-
 
    $pdf->Output('Prueba2.pdf', 'I');//nombreDescarga, Visor(I->visualizar - D->descargar)
