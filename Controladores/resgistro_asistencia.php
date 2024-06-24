@@ -408,15 +408,16 @@ class RegistroAsistencia
         $fechaInicio = date("Y-m-01");
         $fechaFin = date("Y-m-t");
         $sql = "SELECT a.fecha, h.entrada, h.salida, h.jornada, da.hora_ingreso, da.hora_salida, da.horas_trabajadas,
-                da.subtotal_generado, a.descuento, a.total_generado
-            FROM empleados e 
-            INNER JOIN horarios h ON h.id_empleado = e.id 
-            INNER JOIN asistencias a ON a.id_empleado = e.id
-            INNER JOIN detalle_asistencias da ON da.id_asistencia = a.id 
-            WHERE e.cedula = '$cedula'
-            AND a.fecha BETWEEN '$fechaInicio' AND '$fechaFin'
-            AND da.jornada = h.jornada
-            ORDER BY a.fecha ASC";
+            da.subtotal_generado, a.descuento, a.total_generado
+        FROM empleados e 
+        INNER JOIN horarios h ON h.id_empleado = e.id 
+        INNER JOIN asistencias a ON a.id_empleado = e.id
+        INNER JOIN detalle_asistencias da ON da.id_asistencia = a.id 
+        WHERE e.cedula = '$cedula'
+        AND a.fecha BETWEEN '$fechaInicio' AND '$fechaFin'
+        AND da.jornada = h.jornada
+        ORDER BY a.fecha ASC";
+        echo($sql);
         $result = $this->db->query($sql);
         $reportes = [];
         if ($result->num_rows > 0) {
@@ -428,23 +429,22 @@ class RegistroAsistencia
                         'salidaM' => '',
                         'entradaV' => '',
                         'salidaV' => '',
-                        'horasTrabajadas' => 0
+                        'horasTrabajadas' => '00:00:00'
                     ];
                 }
                 if ($row['jornada'] == 'MAT') {
                     $reportes[$row['fecha']]['entradaM'] = $row['hora_ingreso'];
                     $reportes[$row['fecha']]['salidaM'] = $row['hora_salida'];
+                    $reportes[$row['fecha']]['horasTrabajadas'] = $this->sumarHoras($reportes[$row['fecha']]['horasTrabajadas'], $row['horas_trabajadas']);
                 } elseif ($row['jornada'] == 'VES') {
                     $reportes[$row['fecha']]['entradaV'] = $row['hora_ingreso'];
                     $reportes[$row['fecha']]['salidaV'] = $row['hora_salida'];
+                    $reportes[$row['fecha']]['horasTrabajadas'] = $this->sumarHoras($reportes[$row['fecha']]['horasTrabajadas'], $row['horas_trabajadas']);
                 }
-
-                $reportes[$row['fecha']]['horasTrabajadas'] += floatval($row['horas_trabajadas']);
             }
         }
         return array_values($reportes);
     }
-
 
 
     public function reporteSemanal($cedula)
@@ -453,7 +453,6 @@ class RegistroAsistencia
         $hoy = new DateTime();
         $hoy->setTime(0, 0, 0); // Asegurarse de que la hora esté en 00:00:00 para evitar problemas
 
-        // Obtener el día de la semana (1 para lunes, 7 para domingo)
         $diaSemana = (int) $hoy->format('N');
 
         // Calcular la fecha del lunes de la semana actual
@@ -469,18 +468,16 @@ class RegistroAsistencia
         $fechaFin->modify('+6 days');
         $fechaFinString = $fechaFin->format('Y-m-d');
 
-
-
         $sql = "SELECT a.fecha, h.entrada, h.salida, h.jornada, da.hora_ingreso, da.hora_salida, da.horas_trabajadas,
-                da.subtotal_generado, a.descuento, a.total_generado 
-            FROM empleados e 
-            INNER JOIN horarios h ON h.id_empleado = e.id 
-            INNER JOIN asistencias a ON a.id_empleado = e.id
-            INNER JOIN detalle_asistencias da ON da.id_asistencia = a.id 
-            WHERE e.cedula = '$cedula'
-            AND a.fecha BETWEEN '$fechaInicioString' AND '$fechaFinString'
-            AND da.jornada = h.jornada 
-            ORDER BY a.fecha ASC";
+            da.subtotal_generado, a.descuento, a.total_generado 
+        FROM empleados e 
+        INNER JOIN horarios h ON h.id_empleado = e.id 
+        INNER JOIN asistencias a ON a.id_empleado = e.id
+        INNER JOIN detalle_asistencias da ON da.id_asistencia = a.id 
+        WHERE e.cedula = '$cedula'
+        AND a.fecha BETWEEN '$fechaInicioString' AND '$fechaFinString'
+        AND da.jornada = h.jornada 
+        ORDER BY a.fecha ASC";
         $result = $this->db->query($sql);
 
         $reportes = [];
@@ -493,20 +490,40 @@ class RegistroAsistencia
                         'salidaM' => '',
                         'entradaV' => '',
                         'salidaV' => '',
-                        'horasTrabajadas' => 0
+                        'horasTrabajadas' => '00:00:00'
                     ];
                 }
                 if ($row['jornada'] == 'MAT') {
                     $reportes[$row['fecha']]['entradaM'] = $row['hora_ingreso'];
                     $reportes[$row['fecha']]['salidaM'] = $row['hora_salida'];
+                    $reportes[$row['fecha']]['horasTrabajadas'] = $this->sumarHoras($reportes[$row['fecha']]['horasTrabajadas'], $row['horas_trabajadas']);
+                    
                 } elseif ($row['jornada'] == 'VES') {
                     $reportes[$row['fecha']]['entradaV'] = $row['hora_ingreso'];
                     $reportes[$row['fecha']]['salidaV'] = $row['hora_salida'];
+                    $reportes[$row['fecha']]['horasTrabajadas'] = $this->sumarHoras($reportes[$row['fecha']]['horasTrabajadas'], $row['horas_trabajadas']);
+                    
                 }
-
-                $reportes[$row['fecha']]['horasTrabajadas'] += floatval($row['horas_trabajadas']);
             }
         }
         return array_values($reportes);
     }
+
+    private function sumarHoras($hora1, $hora2) {
+        $t1 = new DateTime($hora1);
+        $t2 = new DateTime($hora2);
+        
+        $interval1 = new DateInterval('PT' . $t1->format('H') . 'H' . $t1->format('i') . 'M' . $t1->format('s') . 'S');
+        $interval2 = new DateInterval('PT' . $t2->format('H') . 'H' . $t2->format('i') . 'M' . $t2->format('s') . 'S');
+        
+        $horasTotales = new DateTime('00:00:00');
+        $horasTotales->add($interval1);
+        $horasTotales->add($interval2);
+    
+        return $horasTotales->format('H:i:s');
+    }
+    
+    
+
+    
 }
