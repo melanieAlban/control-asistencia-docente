@@ -52,7 +52,7 @@ class PDF extends FPDF
       $this->Cell(45, 10, utf8_decode('HORA DE ENTRADA'), 1, 0, 'C', 1);
       $this->Cell(45, 10, utf8_decode('HORA DE SALIDA'), 1, 0, 'C', 1);
       $this->Cell(45, 10, utf8_decode('HORAS TRABAJADAS'), 1, 0, 'C', 1);
-      $this->Cell(35, 10, utf8_decode('DESCUENTOS'), 1, 0, 'C', 1);
+      $this->Cell(45, 10, utf8_decode('SUBTOTAL DESCUENTO'), 1, 0, 'C', 1);
       $this->Cell(35, 10, utf8_decode('SUBTOTAL'), 1, 1, 'C', 1);
    }
 
@@ -90,7 +90,7 @@ class PDF extends FPDF
 
    $consulta_reporte_asistencia = $conexion->query("
    SELECT a.fecha, h.entrada, h.salida, h.jornada, da.hora_ingreso, da.hora_salida, da.horas_trabajadas,
-   da.subtotal_generado, a.descuento,a.total_generado 
+   da.subtotal_generado, da.subtotal_descuento,a.total_generado 
 FROM empleados e 
 INNER JOIN horarios h ON h.id_empleado = e.id 
 INNER JOIN asistencias a ON a.id_empleado = e.id
@@ -101,11 +101,18 @@ AND da.jornada = h.jornada
 ORDER BY a.fecha ASC;
    ");
 
-
+   $resultado = $conexion->query("SELECT COALESCE (SUM(da.subtotal_descuento),0) as total_descuento
+   FROM empleados e 
+   INNER JOIN horarios h ON h.id_empleado = e.id 
+   INNER JOIN asistencias a ON a.id_empleado = e.id
+   INNER JOIN detalle_asistencias da ON da.id_asistencia = a.id 
+   WHERE e.cedula = '$cedula'
+   AND a.fecha BETWEEN '$fechaInicioString' AND '$fechaFinString'
+   AND da.jornada = h.jornada ;"); 
    $pdf = new PDF();
    $pdf->AddPage("landscape"); /* aqui entran dos para parametros (horientazion,tamaño)V->portrait H->landscape tamaño (A3.A4.A5.letter.legal) */
    $pdf->AliasNbPages(); //muestra la pagina / y total de paginas
-
+   $total_descuento= $resultado->fetch_assoc()['total_descuento'];
 
    $pdf->SetFont('Arial', '', 12);
    $pdf->SetDrawColor(163, 163, 163); //colorBorde
@@ -117,7 +124,7 @@ ORDER BY a.fecha ASC;
    $hora_entrada = $row->hora_ingreso;
    $hora_salida = $row->hora_salida;
    $horas_trabajada = $row->horas_trabajadas;
-   $descuentos = $row->descuento;
+   $descuentos = $row->subtotal_descuento;
    $subtotal = $row->subtotal_generado;
    $total_generado = $row->total_generado;
    $pdf->Cell(30, 10, utf8_decode($fecha), 1, 0, 'C', 0);
@@ -125,16 +132,16 @@ ORDER BY a.fecha ASC;
    $pdf->Cell(45, 10, utf8_decode($hora_entrada), 1, 0, 'C', 0);
    $pdf->Cell(45, 10, utf8_decode($hora_salida), 1, 0, 'C', 0);
    $pdf->Cell(45, 10, utf8_decode($horas_trabajada), 1, 0, 'C', 0);
-   $pdf->Cell(35, 10, utf8_decode($descuentos), 1, 0, 'C', 0);
-   $pdf->Cell(35, 10, utf8_decode($subtotal), 1, 1, 'C', 0);
+   $pdf->Cell(45, 10, utf8_decode("$".$descuentos), 1, 0, 'C', 0);
+   $pdf->Cell(35, 10, utf8_decode("$".$subtotal), 1, 1, 'C', 0);
    }
    $pdf->Cell(30, 10,"" ,0, 0, 'C', 0);
    $pdf->Cell(30, 10,"" ,0, 0, 'C', 0);
    $pdf->Cell(45, 10,"" ,0, 0, 'C', 0);
    $pdf->Cell(45, 10,"" ,0, 0, 'C', 0);
-   $pdf->Cell(45, 10,"" ,0, 0, 'C', 0);
-   $pdf->Cell(35, 10,"TOTAL" ,0, 0, 'C', 0);
-   $pdf->Cell(35, 10, utf8_decode($total_generado), 1, 1, 'C', 0);
+   $pdf->Cell(45, 10,"TOTAL" ,1, 0, 'C', 0);
+   $pdf->Cell(45, 10,"$".$total_descuento ,1, 0, 'C', 0);
+   $pdf->Cell(35, 10, utf8_decode("$".$total_generado), 1, 1, 'C', 0);
 
 
 

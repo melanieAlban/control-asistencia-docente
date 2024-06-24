@@ -102,7 +102,7 @@ session_start();
                 <h1>Bienvenido</h1>
             </div>
             <div class="col-md-6 login-right">
-                <form class="login-form" method="POST" action="/Proyectofinal/control-asistencia-docente/controladores/login_controller.php">
+                <form class="login-form" method="POST" action="../Controladores/login_controller.php">
                     <h2 class="mb-4">Acceso Docentes</h2>
                     <?php
                     if (isset($_SESSION['error'])) {
@@ -112,7 +112,7 @@ session_start();
                     ?>
                     <div class="form-group">
                         <i class="fas fa-user form-icon"></i>
-                        <input name="cedula" type="text" class="form-control" placeholder="Usuario o Identificación" required>
+                        <input name="cedula" type="text" class="form-control" placeholder="Usuario o Identificación" maxlength="10" required>
                     </div>
                     <div class="form-group">
                         <i class="fas fa-lock form-icon"></i>
