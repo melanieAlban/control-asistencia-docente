@@ -11,7 +11,7 @@ if ($_SESSION['rol'] == 'administrador') {
 
 function registrarAsistencia($tipo)
 {
-    require_once ('../Controladores/resgistro_asistencia.php');
+    require_once('../Controladores/resgistro_asistencia.php');
     $registroAsitencia = new RegistroAsistencia();
     $mensaje = $registroAsitencia->registrarAsistencia($_SESSION['id']);
     return $mensaje;
@@ -31,7 +31,7 @@ require_once('../Controladores/resgistro_asistencia.php');
 $idEmpleado = $_SESSION['id'];
 $fecha = date('Y-m-d');
 $registroAsistencia = new RegistroAsistencia();
-$horasRegistradas = $registroAsistencia->obtenerHorasRegistradas($idEmpleado, $fecha );
+$horasRegistradas = $registroAsistencia->obtenerHorasRegistradas($idEmpleado, $fecha);
 $registros = [];
 
 if ($horasRegistradas) {
@@ -53,7 +53,13 @@ if ($horasRegistradas) {
     }
 
     $registros[] = $registro;
-} 
+}
+
+require_once('../Controladores/resgistro_asistencia.php');
+$controladorReportes = new RegistroAsistencia();
+$cedulaE = $_SESSION['cedula'];
+$reporteMensual = $controladorReportes->reporteMensual($cedulaE);
+$reporteSemanal = $controladorReportes->reporteSemanal($cedulaE);
 
 ?>
 
@@ -102,7 +108,7 @@ if ($horasRegistradas) {
             <div class="card-body">
                 <h4 class="card-title">Tus Horarios de Trabajo</h4>
                 <?php
-                require_once ("../Controladores/obtener_horarios.php");
+                require_once("../Controladores/obtener_horarios.php");
                 ?>
                 <p>Jornada Matutina: <?php echo $jornadaMatutina; ?></p>
                 <p>Jornada Vespertina: <?php echo $jornadaVespertina; ?></p>
@@ -125,204 +131,238 @@ if ($horasRegistradas) {
         </div>
 
         <div class="card mt-3">
-        <div class="card-body">
-        <h5 class="card-title">Reportes</h5>
-        <div class="mb-3">
-            <form id="reporteSemanalForm" method="POST" action="../Reportes/ReporteSemanal.php"  onsubmit="return validarFechaSemana()" target="_blank">
-                <input type="hidden" name="cedula" value="<?php echo $_SESSION['cedula']; ?>" />
-                <input type="week" id="semanaReporte" name="semanaReporte" class="form-control" required />
-                <button type="submit" class="btn btn-primary mt-2">Imprimir Reporte Semanal</button>
-            </form>
-            <button class="btn btn-primary mt-2" onclick="mostrarReporteSemanal()">Ver Reporte Semanal</button>
-        </div>
-        <div>
-            <label for="mesReporte" class="form-label">Selecciona el Mes:</label>
-            <form id="reporteMensualForm" method="POST" action="../Reportes/ReporteMensual.php" target="_blank" onsubmit="return validarFecha()"> 
-            <input type="month" id="mesReporte" name="mesReporte" class="form-control" required />
-                <input type="hidden" name="cedula" value="<?php echo $_SESSION['cedula']; ?>" />
-                <button type="submit" class="btn btn-primary mt-2">Imprimir Reporte Mensual</button>
-            </form>
-            <button class="btn btn-primary mt-2" onclick="mostrarReporteMensual()">Ver Reporte Mensual</button>
-        </div>
-    </div>
-        <div class="card mt-3">
             <div class="card-body">
-                <h5 class="card-title">Resultados del Reporte Semanal</h5>
-                <table class="table">
-                    <thead>
+                <h5 class="card-title">Reportes</h5>
+                <div class="mb-3">
+                    <form id="reporteSemanalForm" method="POST" action="../Reportes/ReporteSemanal.php" onsubmit="return validarFechaSemana()" target="_blank">
+                        <input type="hidden" name="cedula" value="<?php echo $_SESSION['cedula']; ?>" />
+                        <input type="week" id="semanaReporte" name="semanaReporte" class="form-control" required />
+                        <button type="submit" class="btn btn-primary mt-2">Imprimir Reporte Semanal</button>
+                    </form>
+
+                </div>
+                <div>
+                    <label for="mesReporte" class="form-label">Selecciona el Mes:</label>
+                    <form id="reporteMensualForm" method="POST" action="../Reportes/ReporteMensual.php" target="_blank" onsubmit="return validarFecha()">
+                        <input type="month" id="mesReporte" name="mesReporte" class="form-control" required />
+                        <input type="hidden" name="cedula" value="<?php echo $_SESSION['cedula']; ?>" />
+                        <button type="submit" class="btn btn-primary mt-2">Imprimir Reporte Mensual</button>
+                    </form>
+
+                </div>
+            </div>
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Reporte Semanal Actual</h5>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Fecha</th>
+                                <th scope="col">Entrada Matutina</th>
+                                <th scope="col">Salida Matutina</th>
+                                <th scope="col">Entrada Vespertina</th>
+                                <th scope="col">Salida Vespertina</th>
+                                <th scope="col">Horas Trabajadas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reporteSemanal">
+                            <?php if (empty($reporteSemanal)) { ?>
+                                <tr>
+                                    <td colspan="6" class="text-center">No se encontraron registros de esta semana</td>
+                                </tr>
+                            <?php } else { ?>
+                                <?php foreach ($reporteSemanal as $registro) { ?>
+                                    <tr>
+                                        <td><?php echo $registro['fecha']; ?></td>
+                                        <td><?php echo $registro['entradaM']; ?></td>
+                                        <td><?php echo $registro['salidaM']; ?></td>
+                                        <td><?php echo $registro['entradaV']; ?></td>
+                                        <td><?php echo $registro['salidaV']; ?></td>
+                                        <td><?php echo $registro['horasTrabajadas']; ?></td>
+                                    </tr>
+                                <?php } ?>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Resultados Mensual Actual</h5>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Fecha</th>
+                                <th scope="col">Entrada Matutina</th>
+                                <th scope="col">Salida Matutina</th>
+                                <th scope="col">Entrada Vespertina</th>
+                                <th scope="col">Salida Vespertina</th>
+                                <th scope="col">Horas Trabajadas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reporteMensual">
+                        <?php if (empty($reporteMensual)) { ?>
+                    <tr>
+                        <td colspan="6" class="text-center">No se encontraron registros de este mes</td>
+                    </tr>
+                <?php } else { ?>
+                    <?php foreach ($reporteMensual as $registro) { ?>
                         <tr>
-                            <th scope="col">Día</th>
-                            <th scope="col">Entrada Matutina</th>
-                            <th scope="col">Salida Matutina</th>
-                            <th scope="col">Entrada Vespertina</th>
-                            <th scope="col">Salida Vespertina</th>
-                            <th scope="col">Horas Trabajadas</th>
+                            <td><?php echo $registro['fecha']; ?></td>
+                            <td><?php echo $registro['entradaM']; ?></td>
+                            <td><?php echo $registro['salidaM']; ?></td>
+                            <td><?php echo $registro['entradaV']; ?></td>
+                            <td><?php echo $registro['salidaV']; ?></td>
+                            <td><?php echo $registro['horasTrabajadas']; ?></td>
                         </tr>
-                    </thead>
-                    <tbody id="reporteSemanal">
-                    </tbody>
-                </table>
+                    <?php } ?>
+                <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+        <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            var registros = <?php echo json_encode($registros); ?>;
 
-        <div class="card mt-3">
-            <div class="card-body">
-                <h5 class="card-title">Resultados del Reporte Mensual</h5>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Día</th>
-                            <th scope="col">Entrada Matutina</th>
-                            <th scope="col">Salida Matutina</th>
-                            <th scope="col">Entrada Vespertina</th>
-                            <th scope="col">Salida Vespertina</th>
-                            <th scope="col">Horas Trabajadas</th>
-                        </tr>
-                    </thead>
-                    <tbody id="reporteMensual">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+            function validarFecha() {
+                const mesReporte = document.getElementById('mesReporte').value;
+                const fechaSeleccionada = new Date(mesReporte);
+                const fechaActual = new Date();
 
-        var registros = <?php echo json_encode($registros); ?>;
-        function validarFecha() {
-            const mesReporte = document.getElementById('mesReporte').value;
-            const fechaSeleccionada = new Date(mesReporte);
-            const fechaActual = new Date();
-            
-            fechaSeleccionada.setHours(0, 0, 0, 0);
-            fechaActual.setHours(0, 0, 0, 0);
+                fechaSeleccionada.setHours(0, 0, 0, 0);
+                fechaActual.setHours(0, 0, 0, 0);
 
-            if (fechaSeleccionada > fechaActual) {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'No puede seleccionar un mes en el futuro.',
-                    icon: 'error',
-                    confirmButtonText: 'Aceptar'
-                });
-                return false; // Evita que el formulario se envíe
-            }
-            return true; // Permite que el formulario se envíe
-        }
-        function validarFechaSemana() {
-            const semanaReporte = document.getElementById('semanaReporte').value;
-            if (!semanaReporte) {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Debe seleccionar una semana.',
-                    icon: 'error',
-                    confirmButtonText: 'Aceptar'
-                });
-                return false; // Evita que el formulario se envíe
+                if (fechaSeleccionada > fechaActual) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'No puede seleccionar un mes en el futuro.',
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar'
+                    });
+                    return false; 
+                }
+                return true; // Permite que el formulario se envíe
             }
 
-            const year = parseInt(semanaReporte.substring(0, 4));
-            const week = parseInt(semanaReporte.substring(6));
-            const fechaInicioSemana = new Date(year, 0, (1 + (week - 1) * 7));
-            const dayOfWeek = fechaInicioSemana.getDay();
-            const diffToMonday = fechaInicioSemana.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-            const fechaInicio = new Date(fechaInicioSemana.setDate(diffToMonday));
+            function validarFechaSemana() {
+                const semanaReporte = document.getElementById('semanaReporte').value;
+                if (!semanaReporte) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Debe seleccionar una semana.',
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar'
+                    });
+                    return false; // Evita que el formulario se envíe
+                }
 
-            const fechaActual = new Date();
-            fechaInicio.setHours(0, 0, 0, 0);
-            fechaActual.setHours(0, 0, 0, 0);
+                const year = parseInt(semanaReporte.substring(0, 4));
+                const week = parseInt(semanaReporte.substring(6));
+                const fechaInicioSemana = new Date(year, 0, (1 + (week - 1) * 7));
+                const dayOfWeek = fechaInicioSemana.getDay();
+                const diffToMonday = fechaInicioSemana.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+                const fechaInicio = new Date(fechaInicioSemana.setDate(diffToMonday));
 
-            if (fechaInicio > fechaActual) {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'No puede seleccionar una semana en el futuro.',
-                    icon: 'error',
-                    confirmButtonText: 'Aceptar'
-                });
-                return false; // Evita que el formulario se envíe
+                const fechaActual = new Date();
+                fechaInicio.setHours(0, 0, 0, 0);
+                fechaActual.setHours(0, 0, 0, 0);
+
+                if (fechaInicio > fechaActual) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'No puede seleccionar una semana en el futuro.',
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar'
+                    });
+                    return false; // Evita que el formulario se envíe
+                }
+                return true; // Permite que el formulario se envíe
             }
-            return true; // Permite que el formulario se envíe
-        }
-        function validarSalida() {
-            const mesReporte = document.getElementById('semanaReporte').value;
-            const fechaSeleccionada = new Date(mesReporte);
-            const fechaActual = new Date();
-            
-            fechaSeleccionada.setHours(0, 0, 0, 0);
-            fechaActual.setHours(0, 0, 0, 0);
 
-            if (fechaSeleccionada > fechaActual) {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'No puede seleccionar un mes en el futuro.',
-                    icon: 'error',
-                    confirmButtonText: 'Aceptar'
-                });
-                return false; // Evita que el formulario se envíe
+            function validarSalida() {
+                const mesReporte = document.getElementById('semanaReporte').value;
+                const fechaSeleccionada = new Date(mesReporte);
+                const fechaActual = new Date();
+
+                fechaSeleccionada.setHours(0, 0, 0, 0);
+                fechaActual.setHours(0, 0, 0, 0);
+
+                if (fechaSeleccionada > fechaActual) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'No puede seleccionar un mes en el futuro.',
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar'
+                    });
+                    return false; // Evita que el formulario se envíe
+                }
+                return true; // Permite que el formulario se envíe
             }
-            return true; // Permite que el formulario se envíe
-        }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            <?php
-            if (isset($_SESSION['success'])) {
-                echo "Swal.fire({
+            document.addEventListener('DOMContentLoaded', function() {
+                <?php
+                if (isset($_SESSION['success'])) {
+                    echo "Swal.fire({
                     title: 'Éxito',
                     text: '" . $_SESSION['success'] . "',
                     icon: 'success'
                 });";
-                unset($_SESSION['success']);
-            } elseif (isset($_SESSION['error'])) {
-                echo "Swal.fire({
+                    unset($_SESSION['success']);
+                } elseif (isset($_SESSION['error'])) {
+                    echo "Swal.fire({
                     title: 'Error',
                     text: '" . $_SESSION['error'] . "',
                     icon: 'error'
                 });";
-                unset($_SESSION['error']);
-            }
-            ?>
-        });
-        
+                    unset($_SESSION['error']);
+                }
+                ?>
+            });
 
-        window.onload = function () {
-            verificarRegistroHoy();
-        };
 
-        <?php if (!empty($mensaje)) { ?>
-            Toastify({
-                text: "<?php echo $mensaje; ?>",
-                duration: 5000,
-                close: true,
-                gravity: "top",
-                position: "right",
-                backgroundColor: "#5162A8",
-            }).showToast();
-        <?php } ?>
+            window.onload = function() {
+                verificarRegistroHoy();
+            };
 
-        function verificarRegistroHoy() {
-            //la consulta que hice, ya llama con la fecha de hoy asi que aqui no hay que buscar todos
-            //el sql ya devuelve la fecha de hoy
-            var resultado = document.getElementById('verificarResultado');
-            if (registros.length > 0) {
-                var registro = registros[0];
-                resultado.innerHTML = `
+            <?php if (!empty($mensaje)) { ?>
+                Toastify({
+                    text: "<?php echo $mensaje; ?>",
+                    duration: 5000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#5162A8",
+                }).showToast();
+            <?php } ?>
+
+            function verificarRegistroHoy() {
+                //la consulta que hice, ya llama con la fecha de hoy asi que aqui no hay que buscar todos
+                //el sql ya devuelve la fecha de hoy
+                var resultado = document.getElementById('verificarResultado');
+                if (registros.length > 0) {
+                    var registro = registros[0];
+                    resultado.innerHTML = `
                     <p><strong>Entrada Matutina:</strong> ${registro.entradaM || 'No registrada'}</p>
                     <p><strong>Salida Matutina:</strong> ${registro.salidaM || 'No registrada'}</p>
                     <p><strong>Entrada Vespertina:</strong> ${registro.entradaV || 'No registrada'}</p>
                     <p><strong>Salida Vespertina:</strong> ${registro.salidaV || 'No registrada'}</p>
                 `;
-            } else {
-                resultado.textContent = 'No se encontraron registros para el día de hoy.';
+                } else {
+                    resultado.textContent = 'No se encontraron registros para el día de hoy.';
+                }
             }
-        }
 
-        function mostrarReporteSemanal() {
-            var resultado = document.getElementById('reporteSemanal');
-            resultado.innerHTML = '';
-            var registrosSemana = registros.slice(-7);
+            function mostrarReporteSemanal() {
+                var resultado = document.getElementById('reporteSemanal');
+                resultado.innerHTML = '';
+                var registrosSemana = registros.slice(-7);
 
-            registrosSemana.forEach(function (r) {
-                resultado.innerHTML += `
+                registrosSemana.forEach(function(r) {
+                    resultado.innerHTML += `
                     <tr>
                         <td>${r.dia}</td>
                         <td>${r.entradaM}</td>
@@ -332,20 +372,20 @@ if ($horasRegistradas) {
                         <td>${r.horasTrabajadas}</td>
                     </tr>
                 `;
-            });
-        }
+                });
+            }
 
-        function mostrarReporteMensual() {
-            var mesSeleccionado = document.getElementById('mesReporte').value;
-            var resultado = document.getElementById('reporteMensual');
-            resultado.innerHTML = '';
+            function mostrarReporteMensual() {
+                var mesSeleccionado = document.getElementById('mesReporte').value;
+                var resultado = document.getElementById('reporteMensual');
+                resultado.innerHTML = '';
 
-            if (mesSeleccionado) {
-                var registrosMes = registros.filter(r => r.fecha.startsWith(mesSeleccionado));
+                if (mesSeleccionado) {
+                    var registrosMes = registros.filter(r => r.fecha.startsWith(mesSeleccionado));
 
-                if (registrosMes.length > 0) {
-                    registrosMes.forEach(function (r) {
-                        resultado.innerHTML += `
+                    if (registrosMes.length > 0) {
+                        registrosMes.forEach(function(r) {
+                            resultado.innerHTML += `
                             <tr>
                                 <td>${r.dia}</td>
                                 <td>${r.entradaM}</td>
@@ -355,15 +395,15 @@ if ($horasRegistradas) {
                                 <td>${r.horasTrabajadas}</td>
                             </tr>
                         `;
-                    });
+                        });
+                    } else {
+                        resultado.innerHTML = '<tr><td colspan="6" class="text-center">No se encontraron registros para el mes seleccionado.</td></tr>';
+                    }
                 } else {
-                    resultado.innerHTML = '<tr><td colspan="6" class="text-center">No se encontraron registros para el mes seleccionado.</td></tr>';
+                    resultado.innerHTML = '<tr><td colspan="6" class="text-center">Por favor, selecciona un mes válido.</td></tr>';
                 }
-            } else {
-                resultado.innerHTML = '<tr><td colspan="6" class="text-center">Por favor, selecciona un mes válido.</td></tr>';
             }
-        }
-    </script>
+        </script>
 </body>
 
 </html>

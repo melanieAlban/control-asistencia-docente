@@ -373,12 +373,13 @@ class RegistroAsistencia
         return "$horas:$minutos:$segundos";
     }
 
-    public function obtenerHorasRegistradas($idEmpleado, $fecha) {
+    public function obtenerHorasRegistradas($idEmpleado, $fecha)
+    {
         $sql = "SELECT hora_ingreso, hora_salida, jornada FROM detalle_asistencias
                 INNER JOIN asistencias ON detalle_asistencias.id_asistencia = asistencias.id
                 WHERE asistencias.id_empleado = $idEmpleado AND asistencias.fecha = '$fecha'";
         $result = $this->db->query($sql);
-    
+
         if ($result->num_rows > 0) {
             $horasRegistradas = [];
             while ($row = $result->fetch_assoc()) {
@@ -389,7 +390,113 @@ class RegistroAsistencia
             return null;
         }
     }
+
+
+    public function reporteMensual($cedula)
+    {
+        date_default_timezone_set('America/Guayaquil');
+        $fechaInicio = date("Y-m-01");
+        $fechaFin = date("Y-m-t");
+        $sql = "SELECT a.fecha, h.entrada, h.salida, h.jornada, da.hora_ingreso, da.hora_salida, da.horas_trabajadas,
+                da.subtotal_generado, a.descuento, a.total_generado
+            FROM empleados e 
+            INNER JOIN horarios h ON h.id_empleado = e.id 
+            INNER JOIN asistencias a ON a.id_empleado = e.id
+            INNER JOIN detalle_asistencias da ON da.id_asistencia = a.id 
+            WHERE e.cedula = '$cedula'
+            AND a.fecha BETWEEN '$fechaInicio' AND '$fechaFin'
+            AND da.jornada = h.jornada
+            ORDER BY a.fecha ASC";
+        $result = $this->db->query($sql);
+        $reportes = [];
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                if (!isset($reportes[$row['fecha']])) {
+                    $reportes[$row['fecha']] = [
+                        'fecha' => $row['fecha'],
+                        'entradaM' => '',
+                        'salidaM' => '',
+                        'entradaV' => '',
+                        'salidaV' => '',
+                        'horasTrabajadas' => 0 
+                    ];
+                }
+                if ($row['jornada'] == 'MAT') {
+                    $reportes[$row['fecha']]['entradaM'] = $row['hora_ingreso'];
+                    $reportes[$row['fecha']]['salidaM'] = $row['hora_salida'];
+                } elseif ($row['jornada'] == 'VES') {
+                    $reportes[$row['fecha']]['entradaV'] = $row['hora_ingreso'];
+                    $reportes[$row['fecha']]['salidaV'] = $row['hora_salida'];
+                }
+           
+                $reportes[$row['fecha']]['horasTrabajadas'] += floatval($row['horas_trabajadas']);
+            }
+        }
+        return array_values($reportes); 
+    }
+
+
+
+    public function reporteSemanal($cedula)
+    {
+        date_default_timezone_set('America/Guayaquil');
+        $hoy = new DateTime();
+        $hoy->setTime(0, 0, 0); // Asegurarse de que la hora esté en 00:00:00 para evitar problemas
+
+        // Obtener el día de la semana (1 para lunes, 7 para domingo)
+        $diaSemana = (int) $hoy->format('N');
+
+        // Calcular la fecha del lunes de la semana actual
+        if ($diaSemana === 7) { // Si es domingo, restar 6 días
+            $hoy->modify('-6 days');
+        } else { // Si no es domingo, restar el número de días que han pasado desde el lunes
+            $hoy->modify('-' . ($diaSemana - 1) . ' days');
+        }
+        $fechaInicioString = $hoy->format('Y-m-d');
+
+        // Calcular la fecha del domingo de la semana actual
+        $fechaFin = clone $hoy;
+        $fechaFin->modify('+6 days');
+        $fechaFinString = $fechaFin->format('Y-m-d');
+
     
-    
-    
+
+        $sql = "SELECT a.fecha, h.entrada, h.salida, h.jornada, da.hora_ingreso, da.hora_salida, da.horas_trabajadas,
+                da.subtotal_generado, a.descuento, a.total_generado 
+            FROM empleados e 
+            INNER JOIN horarios h ON h.id_empleado = e.id 
+            INNER JOIN asistencias a ON a.id_empleado = e.id
+            INNER JOIN detalle_asistencias da ON da.id_asistencia = a.id 
+            WHERE e.cedula = '$cedula'
+            AND a.fecha BETWEEN '$fechaInicioString' AND '$fechaFinString'
+            AND da.jornada = h.jornada 
+            ORDER BY a.fecha ASC";
+        $result = $this->db->query($sql);
+
+        $reportes = [];
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                if (!isset($reportes[$row['fecha']])) {
+                    $reportes[$row['fecha']] = [
+                        'fecha' => $row['fecha'],
+                        'entradaM' => '',
+                        'salidaM' => '',
+                        'entradaV' => '',
+                        'salidaV' => '',
+                        'horasTrabajadas' => 0 
+                    ];
+                }
+                if ($row['jornada'] == 'MAT') {
+                    $reportes[$row['fecha']]['entradaM'] = $row['hora_ingreso'];
+                    $reportes[$row['fecha']]['salidaM'] = $row['hora_salida'];
+                } elseif ($row['jornada'] == 'VES') {
+                    $reportes[$row['fecha']]['entradaV'] = $row['hora_ingreso'];
+                    $reportes[$row['fecha']]['salidaV'] = $row['hora_salida'];
+                }
+           
+                $reportes[$row['fecha']]['horasTrabajadas'] += floatval($row['horas_trabajadas']);
+            }
+        }
+        return array_values($reportes); 
+    }
 }
