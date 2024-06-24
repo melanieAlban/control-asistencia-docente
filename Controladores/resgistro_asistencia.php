@@ -21,9 +21,9 @@ class RegistroAsistencia
     {
         date_default_timezone_set('America/Guayaquil');
         // $this->fecha = date('Y-m-d');
-        $this->fecha = ('2024-06-02');
+        $this->fecha = ('2024-06-24');
         // $this->hora = date('H:i:s');
-        $this->hora = '18:00:00';
+        $this->hora = '16:00:00';
         //$this->hora = '11:50:00';
         //$this->hora = '14:20:00';
         //$this->hora = '17:10:00';
@@ -148,8 +148,7 @@ class RegistroAsistencia
         } else if (
             $resultDetalleAsistencia->num_rows == 1 &&
             !$detalleMatutino->hora_salida &&
-            $this->hora <= $maximoSalidaMat &&
-            $detalleMatutino->hora_salida
+            $this->hora <= $maximoSalidaMat
         ) {
             // Registrar salida matutina si si esta dentro de la hora permitida
             if ($this->hora <= $maximoSalidaMat) {
@@ -418,7 +417,7 @@ class RegistroAsistencia
                         'salidaM' => '',
                         'entradaV' => '',
                         'salidaV' => '',
-                        'horasTrabajadas' => 0 
+                        'horasTrabajadas' => 0
                     ];
                 }
                 if ($row['jornada'] == 'MAT') {
@@ -428,11 +427,11 @@ class RegistroAsistencia
                     $reportes[$row['fecha']]['entradaV'] = $row['hora_ingreso'];
                     $reportes[$row['fecha']]['salidaV'] = $row['hora_salida'];
                 }
-           
+
                 $reportes[$row['fecha']]['horasTrabajadas'] += floatval($row['horas_trabajadas']);
             }
         }
-        return array_values($reportes); 
+        return array_values($reportes);
     }
 
 
@@ -459,7 +458,7 @@ class RegistroAsistencia
         $fechaFin->modify('+6 days');
         $fechaFinString = $fechaFin->format('Y-m-d');
 
-    
+
 
         $sql = "SELECT a.fecha, h.entrada, h.salida, h.jornada, da.hora_ingreso, da.hora_salida, da.horas_trabajadas,
                 da.subtotal_generado, a.descuento, a.total_generado 
@@ -483,7 +482,7 @@ class RegistroAsistencia
                         'salidaM' => '',
                         'entradaV' => '',
                         'salidaV' => '',
-                        'horasTrabajadas' => 0 
+                        'horasTrabajadas' => 0
                     ];
                 }
                 if ($row['jornada'] == 'MAT') {
@@ -493,10 +492,10 @@ class RegistroAsistencia
                     $reportes[$row['fecha']]['entradaV'] = $row['hora_ingreso'];
                     $reportes[$row['fecha']]['salidaV'] = $row['hora_salida'];
                 }
-           
+
                 $reportes[$row['fecha']]['horasTrabajadas'] += floatval($row['horas_trabajadas']);
             }
         }
-        return array_values($reportes); 
+        return array_values($reportes);
     }
 }
