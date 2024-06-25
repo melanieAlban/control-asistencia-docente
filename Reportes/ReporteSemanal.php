@@ -38,7 +38,7 @@ class PDF extends FPDF
       $this->SetTextColor(110, 7, 7);
       $this->Cell(95); // mover a la derecha
       $this->SetFont('Arial', 'B', 15);
-      $this->Cell(100, 10, utf8_decode("REPORTE DE ASISTENCIA "), 0, 1, 'C', 0);
+      $this->Cell(100, 10, utf8_decode("REPORTE DE ASISTENCIA SEMANAL "), 0, 1, 'C', 0);
       $this->Ln(7);
 
       /* CAMPOS DE LA TABLA */
@@ -101,7 +101,7 @@ AND da.jornada = h.jornada
 ORDER BY a.fecha ASC;
    ");
 
-   $resultado = $conexion->query("SELECT COALESCE (SUM(da.subtotal_descuento),0) as total_descuento
+   $resultado = $conexion->query("SELECT COALESCE (SUM((HOUR(da.horas_trabajadas)*8 -da.subtotal_descuento) ),0) as total_generado
    FROM empleados e 
    INNER JOIN horarios h ON h.id_empleado = e.id 
    INNER JOIN asistencias a ON a.id_empleado = e.id

@@ -38,7 +38,7 @@ class PDF extends FPDF
       $this->SetTextColor(110, 7, 7);
       $this->Cell(95); // mover a la derecha
       $this->SetFont('Arial', 'B', 15);
-      $this->Cell(100, 10, utf8_decode("REPORTE DE ASISTENCIA MENSUAL"), 0, 1, 'C', 0);
+      $this->Cell(100, 10, utf8_decode("REPORTE DE ASISTENCIA DIARIO "), 0, 1, 'C', 0);
       $this->Ln(7);
 
       /* CAMPOS DE LA TABLA */
@@ -72,25 +72,23 @@ class PDF extends FPDF
 
 
    $cedula = $_POST['cedula'];
-   $diaReporte = $_POST['mesReporte'];
-   list($year, $month) = explode('-', $diaReporte);
+   $diaReporte = $_POST['diaReporte'];
+   list($year, $month, $day) = explode('-', $diaReporte);
+   $fecha = "$year-$month-$day";
+   
    $conn = new Conexion();
    $conexion = $conn->conectar();
-
-   $fechaInicio = "$year-$month-01";
-   $fechaFin = date("Y-m-t", strtotime($fechaInicio)); // Último día del mes
-
    $consulta_reporte_asistencia = $conexion->query("
    SELECT a.fecha, h.entrada, h.salida, h.jornada, da.hora_ingreso, da.hora_salida, da.horas_trabajadas,
    da.subtotal_descuento,(HOUR(da.horas_trabajadas)*8 -da.subtotal_descuento) as subtotal_generado
-FROM empleados e 
-INNER JOIN horarios h ON h.id_empleado = e.id 
-INNER JOIN asistencias a ON a.id_empleado = e.id
-INNER JOIN detalle_asistencias da ON da.id_asistencia = a.id 
-WHERE e.cedula = '$cedula'
-AND a.fecha BETWEEN '$fechaInicio' AND '$fechaFin'
-AND da.jornada = h.jornada
-ORDER BY a.fecha ASC;
+   FROM empleados e 
+   INNER JOIN horarios h ON h.id_empleado = e.id 
+   INNER JOIN asistencias a ON a.id_empleado = e.id
+   INNER JOIN detalle_asistencias da ON da.id_asistencia = a.id 
+   WHERE e.cedula = '$cedula'
+   AND a.fecha = '$fecha'
+   AND da.jornada = h.jornada
+   order by entrada ASC;
    ");
 
    $resultado = $conexion->query("SELECT COALESCE (SUM(da.subtotal_descuento),0) as total_descuento
@@ -99,17 +97,17 @@ ORDER BY a.fecha ASC;
    INNER JOIN asistencias a ON a.id_empleado = e.id
    INNER JOIN detalle_asistencias da ON da.id_asistencia = a.id 
    WHERE e.cedula = '$cedula'
-   AND a.fecha BETWEEN '$fechaInicio' AND '$fechaFin'
+   AND a.fecha = '$fecha'
    AND da.jornada = h.jornada ;");
 
 
-   $resultado_total_generado = $conexion->query("SELECT COALESCE(SUM((HOUR(da.horas_trabajadas)*8 -da.subtotal_descuento) ),0) as total_generado
+   $resultado_total_generado = $conexion->query("SELECT COALESCE (SUM((HOUR(da.horas_trabajadas)*8 -da.subtotal_descuento) ),0) as total_generado
    FROM empleados e 
    INNER JOIN horarios h ON h.id_empleado = e.id 
    INNER JOIN asistencias a ON a.id_empleado = e.id
    INNER JOIN detalle_asistencias da ON da.id_asistencia = a.id 
    WHERE e.cedula = '$cedula'
-   AND a.fecha BETWEEN '$fechaInicio' AND '$fechaFin'
+   AND a.fecha = '$fecha'
    AND da.jornada = h.jornada ;");
 
 
@@ -132,7 +130,7 @@ ORDER BY a.fecha ASC;
    $hora_salida = $row->hora_salida;
    $horas_trabajada = $row->horas_trabajadas;
    $descuentos = $row->subtotal_descuento;
-   if ($descuentos > $row->subtotal_generado) {
+   if ($descuentos > 60) {
       $subtotal = 0;
    }else {
       $subtotal = $row->subtotal_generado;

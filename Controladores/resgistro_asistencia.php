@@ -21,9 +21,9 @@ class RegistroAsistencia
     {
         date_default_timezone_set('America/Guayaquil');
         // $this->fecha = date('Y-m-d');
-        $this->fecha = ('2024-06-22');
+        $this->fecha = ('2024-06-26');
         // $this->hora = date('H:i:s');
-        $this->hora = '19:00:00';
+        $this->hora = '16:30:00';
         //$this->hora = '11:50:00';
         //$this->hora = '14:20:00';
         //$this->hora = '17:10:00';
@@ -417,7 +417,7 @@ class RegistroAsistencia
         AND a.fecha BETWEEN '$fechaInicio' AND '$fechaFin'
         AND da.jornada = h.jornada
         ORDER BY a.fecha ASC";
-        echo($sql);
+        //echo($sql);
         $result = $this->db->query($sql);
         $reportes = [];
         if ($result->num_rows > 0) {
