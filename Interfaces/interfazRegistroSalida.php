@@ -101,6 +101,9 @@ $reporteSemanal = $controladorReportes->reporteSemanal($cedulaE);
                     }
                     setInterval(updateClock, 1000);
                 </script>
+                <form method="POST">
+                    <button type="submit" name="registrarEntrada" class="btn btn-primary me-2 mt-3">Registrarse</button>
+                </form>
             </div>
         </div>
 
@@ -117,9 +120,7 @@ $reporteSemanal = $controladorReportes->reporteSemanal($cedulaE);
 
         <div class="card mt-3">
             <div class="card-body text-center">
-                <form method="POST">
-                    <button type="submit" name="registrarEntrada" class="btn btn-success me-2">Registrarse</button>
-                </form>
+
             </div>
         </div>
 
@@ -202,22 +203,22 @@ $reporteSemanal = $controladorReportes->reporteSemanal($cedulaE);
                             </tr>
                         </thead>
                         <tbody id="reporteMensual">
-                        <?php if (empty($reporteMensual)) { ?>
-                    <tr>
-                        <td colspan="6" class="text-center">No se encontraron registros de este mes</td>
-                    </tr>
-                <?php } else { ?>
-                    <?php foreach ($reporteMensual as $registro) { ?>
-                        <tr>
-                            <td><?php echo $registro['fecha']; ?></td>
-                            <td><?php echo $registro['entradaM']; ?></td>
-                            <td><?php echo $registro['salidaM']; ?></td>
-                            <td><?php echo $registro['entradaV']; ?></td>
-                            <td><?php echo $registro['salidaV']; ?></td>
-                            <td><?php echo $registro['horasTrabajadas']; ?></td>
-                        </tr>
-                    <?php } ?>
-                <?php } ?>
+                            <?php if (empty($reporteMensual)) { ?>
+                                <tr>
+                                    <td colspan="6" class="text-center">No se encontraron registros de este mes</td>
+                                </tr>
+                            <?php } else { ?>
+                                <?php foreach ($reporteMensual as $registro) { ?>
+                                    <tr>
+                                        <td><?php echo $registro['fecha']; ?></td>
+                                        <td><?php echo $registro['entradaM']; ?></td>
+                                        <td><?php echo $registro['salidaM']; ?></td>
+                                        <td><?php echo $registro['entradaV']; ?></td>
+                                        <td><?php echo $registro['salidaV']; ?></td>
+                                        <td><?php echo $registro['horasTrabajadas']; ?></td>
+                                    </tr>
+                                <?php } ?>
+                            <?php } ?>
                         </tbody>
                     </table>
                 </div>
@@ -243,7 +244,7 @@ $reporteSemanal = $controladorReportes->reporteSemanal($cedulaE);
                         icon: 'error',
                         confirmButtonText: 'Aceptar'
                     });
-                    return false; 
+                    return false;
                 }
                 return true; // Permite que el formulario se envíe
             }
@@ -329,14 +330,14 @@ $reporteSemanal = $controladorReportes->reporteSemanal($cedulaE);
             };
 
             <?php if (!empty($mensaje)) { ?>
-                Toastify({
-                    text: "<?php echo $mensaje; ?>",
-                    duration: 5000,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    backgroundColor: "#5162A8",
-                }).showToast();
+                Swal.fire({
+                    icon: 'info', // Icono de la alerta, en este caso 'success' que muestra un ícono de verificación.
+                    title: 'OK', // Título de la alerta.
+                    text: "<?php echo $mensaje; ?>", // Texto de la alerta, muestra el contenido de la variable $mensaje.
+                    showConfirmButton: false, // No muestra el botón de confirmar para que se cierre automáticamente.
+                    timer: 2500, // Duración de la alerta antes de cerrarse automáticamente, 2000 milisegundos (2 segundos).
+                    timerProgressBar: true,
+                })
             <?php } ?>
 
             function verificarRegistroHoy() {

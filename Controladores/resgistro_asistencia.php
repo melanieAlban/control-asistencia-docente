@@ -21,9 +21,9 @@ class RegistroAsistencia
     {
         date_default_timezone_set('America/Guayaquil');
         // $this->fecha = date('Y-m-d');
-        $this->fecha = ('2024-05-24');
+        $this->fecha = ('2024-05-26');
         // $this->hora = date('H:i:s');
-        $this->hora = '20:00:00';
+        $this->hora = '17:00:00';
         //$this->hora = '11:50:00';
         //$this->hora = '14:20:00';
         //$this->hora = '17:10:00';
@@ -114,7 +114,7 @@ class RegistroAsistencia
                 $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
                                 WHERE id = '{$this->idAsistencia}'";
                 $this->db->query($updateAsistencia);
-                return "Registro de ingreso exitoso. (Descuento por atraso: $$descuento)";
+                return "Registro de ingreso exitoso.";
             }
 
             // Si llega aqui significa que no registro ni entrada ni salida por ende pierde la jornada
@@ -245,7 +245,7 @@ class RegistroAsistencia
                 $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
                                 WHERE id = '{$this->idAsistencia}'";
                 $this->db->query($updateAsistencia);
-                return "Registro de ingreso exitoso. (Descuento por atraso: $$descuento)";
+                return "Registro de ingreso exitoso.";
             }
 
             // Si llega aqui significa que no registro ni entrada ni salida por ende pierde la jornada
