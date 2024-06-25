@@ -15,8 +15,8 @@ class RegistroAsistencia
     public function __construct()
     {
         $this->db = (new Conexion())->conectar();
-        $this->fecha = ('2024-07-04');
-        $this->hora = '13:10:00';
+        $this->fecha = ('2024-07-06');
+        $this->hora = '14:45:00';
     }
 
     public function registrarAsistencia($idEmpleado)
@@ -156,7 +156,7 @@ class RegistroAsistencia
             $this->hora <= $maximoSalidaMat
         ) {
             // Registrar salida matutina si si esta dentro de la hora permitida
-            if ($this->hora <= $maximoSalidaMat) {
+            if ($this->hora <= $maximoSalidaMat && $detalleMatutino->hora_ingreso) {
                 $subtotal_descuento = $detalleMatutino->subtotal_descuento;
                 $generadoJornada = 0;
                 $horasTrabajadas = '00:00:00';
@@ -213,7 +213,7 @@ class RegistroAsistencia
                 $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
                                     WHERE id = $this->idAsistencia";
                 $this->db->query($updateAsistencia);
-                return "Perdió la jornada de la mañana...";
+                return "Perdió la jornada de la mañana, su siguiente entrada es $minimoEntradaVes";
             }
         } else if ($resultDetalleAsistencia->num_rows == 1) { // Entrada vespertina
             // Registrar entrada vespertina
