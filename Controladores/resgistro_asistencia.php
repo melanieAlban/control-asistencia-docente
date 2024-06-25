@@ -21,9 +21,9 @@ class RegistroAsistencia
     {
         date_default_timezone_set('America/Guayaquil');
         // $this->fecha = date('Y-m-d');
-        $this->fecha = ('2024-06-22');
+        $this->fecha = ('2024-05-24');
         // $this->hora = date('H:i:s');
-        $this->hora = '19:00:00';
+        $this->hora = '20:00:00';
         //$this->hora = '11:50:00';
         //$this->hora = '14:20:00';
         //$this->hora = '17:10:00';
@@ -205,14 +205,15 @@ class RegistroAsistencia
                     $this->db->query($updateAsistencia);
                 }
                 return "Registro de salida exitoso";
+            } else {
+                // Descontar jornada matutina por atraso
+                $descuento = $this->calcularDescuento($this->horarioMatutino->entrada, $this->horarioMatutino->salida);
+                $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
+                                    WHERE id = $this->idAsistencia";
+                $this->db->query($updateAsistencia);
+                return "Perdió la jornada de la mañana...";
             }
         } else if ($resultDetalleAsistencia->num_rows == 1) { // Entrada vespertina
-            // Descontar jornada matutina por atraso
-            $descuento = $this->calcularDescuento($this->horarioMatutino->entrada, $this->horarioMatutino->salida);
-            $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
-                                WHERE id = $this->idAsistencia";
-            $this->db->query($updateAsistencia);
-
             // Registrar entrada vespertina
             // Restar 15 minutos para la entrada
             $descuento = $asistencia->descuento;
@@ -262,6 +263,7 @@ class RegistroAsistencia
             $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
                                 WHERE id = '{$this->idAsistencia}'";
             $this->db->query($updateAsistencia);
+
 
             return "Su jornada ha terminado, su descuento será de $$descuento";
         } else if ($this->hora <= $maximoSalidaVes) { // 
