@@ -4,7 +4,7 @@ if (empty($_SESSION["id"])) {
     header("Location: Interfazlogin.php");
     exit();
 }
-require_once('../Controladores/resgistro_asistencia.php');
+require_once ('../Controladores/resgistro_asistencia.php');
 
 $controladorReportes = new RegistroAsistencia();
 $cedulaE = $_SESSION['cedula'];
@@ -25,38 +25,41 @@ $reporteSemanal = $controladorReportes->reporteSemanal($cedulaE);
 </head>
 <style>
     .navbar-vino {
-    background-color: #800020; 
-}
+        background-color: #800020;
+    }
 
-.navbar-vino .navbar-nav .nav-link {
-    color: white;
-}
+    .navbar-vino .navbar-nav .nav-link {
+        color: white;
+    }
 
-.navbar-vino .navbar-brand {
-    color: white;
-}
+    .navbar-vino .navbar-brand {
+        color: white;
+    }
 
-.navbar-vino .navbar-nav .nav-link:hover,
-.navbar-vino .navbar-brand:hover {
-    color: #f8f9fa; 
-}
-.btn-vino {
-    background-color: #800020; 
-    color: white;
-    border: none;
-    
-}
+    .navbar-vino .navbar-nav .nav-link:hover,
+    .navbar-vino .navbar-brand:hover {
+        color: #f8f9fa;
+    }
 
-.btn-vino:hover {
-    background-color: #800020; 
-}
+    .btn-vino {
+        background-color: #800020;
+        color: white;
+        border: none;
 
+    }
+
+    .btn-vino:hover {
+        background-color: #6a1a1a; 
+            color: white;
+    }
 </style>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-vino">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Control de Asistencia</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -68,7 +71,8 @@ $reporteSemanal = $controladorReportes->reporteSemanal($cedulaE);
                         <a class="nav-link" href="reportes.php">Reportes</a>
                     </li>
                     <li class="nav-item me-3">
-                        <a class="nav-link btn btn-secondary text-white" href="../Controladores/cerrar_sesion_controller.php">Cerrar Sesión</a>
+                        <a class="nav-link btn btn-secondary text-white"
+                            href="../Controladores/cerrar_sesion_controller.php">Cerrar Sesión</a>
                     </li>
                 </ul>
             </div>
@@ -80,16 +84,28 @@ $reporteSemanal = $controladorReportes->reporteSemanal($cedulaE);
         <div class="card mt-3">
             <div class="card-body">
                 <h5 class="card-title">Reportes</h5>
+                <div lass="mb-3"> 
+                    <label for="diaReporte" class="form-label">Selecciona la Fecha:</label>
+                    <form id="reporteDiarioForm" method="POST" action="../Reportes/ReporteDiario.php" target="_blank"
+                        onsubmit="return validarFecha()">
+                        <input type="date" id="diaReporte" name="diaReporte" class="form-control" required />
+                        <input type="hidden" name="cedula" value="<?php echo $_SESSION['cedula']; ?>" />
+                        <button type="submit" class="btn btn-vino mt-2 mb-3">Imprimir Reporte Diario</button>
+                    </form>
+                </div>
                 <div class="mb-3">
-                    <form id="reporteSemanalForm" method="POST" action="../Reportes/ReporteSemanal.php" onsubmit="return validarFechaSemana()" target="_blank">
+                <label for="semanaReporte" class="form-label">Selecciona la semana:</label>
+                    <form id="reporteSemanalForm" method="POST" action="../Reportes/ReporteSemanal.php"
+                        onsubmit="return validarFechaSemana()" target="_blank">
                         <input type="hidden" name="cedula" value="<?php echo $_SESSION['cedula']; ?>" />
                         <input type="week" id="semanaReporte" name="semanaReporte" class="form-control" required />
                         <button type="submit" class="btn btn-vino mt-2">Imprimir Reporte Semanal</button>
                     </form>
-                </div>
-                <div>
+                </div>              
+                <div class="mb-3"> 
                     <label for="mesReporte" class="form-label">Selecciona el Mes:</label>
-                    <form id="reporteMensualForm" method="POST" action="../Reportes/ReporteMensual.php" target="_blank" onsubmit="return validarFecha()">
+                    <form id="reporteMensualForm" method="POST" action="../Reportes/ReporteMensual.php" target="_blank"
+                        onsubmit="return validarFecha()">
                         <input type="month" id="mesReporte" name="mesReporte" class="form-control" required />
                         <input type="hidden" name="cedula" value="<?php echo $_SESSION['cedula']; ?>" />
                         <button type="submit" class="btn btn-vino mt-2">Imprimir Reporte Mensual</button>
@@ -189,7 +205,7 @@ $reporteSemanal = $controladorReportes->reporteSemanal($cedulaE);
                     icon: 'error',
                     confirmButtonText: 'Aceptar'
                 });
-                return false; 
+                return false;
             }
             return true;
         }
