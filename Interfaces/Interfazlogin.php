@@ -87,7 +87,8 @@ session_start();
             transition: background-color 0.3s ease-in-out;
         }
         .btn-custom:hover {
-            background-color: rgb(130, 27, 27);
+            background-color: #6a1a1a; 
+            color: white;
         }
         .icon {
             font-size: 120px;
