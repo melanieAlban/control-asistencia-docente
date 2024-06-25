@@ -10,7 +10,7 @@ class PDF extends FPDF
    {
       $conn = new Conexion();
       $conexion = $conn->conectar();
-      $diaReporte = $_POST['mesReporte'];
+      $diaReporte = $_POST['mesReporte1'];
       list($year, $month) = explode('-', $diaReporte);
       $fechaInicio = "$year-$month-01";
       $fechaFin = date("Y-m-t", strtotime($fechaInicio));
@@ -66,7 +66,7 @@ class PDF extends FPDF
 }
 
 
-$diaReporte = $_POST['mesReporte'];
+$diaReporte = $_POST['mesReporte1'];
 list($year, $month) = explode('-', $diaReporte);
 $conn = new Conexion();
 $conexion = $conn->conectar();

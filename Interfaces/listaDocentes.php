@@ -217,8 +217,8 @@ $docentes = obtenerListaDocentes();
                                         id="searchCedula">
                                 </div>
                                 <div class="col-md-3 mb-3">
-                                    <label for="mesReporte" class="form-label">Mes:</label>
-                                    <input type="month" id="mesReporte" name="mesReporte" class="form-control">
+                                    <label for="mesReporte1" class="form-label">Mes:</label>
+                                    <input type="month" id="mesReporte1" name="mesReporte1" class="form-control">
                                 </div>
                                 <div class="col-md-2 mb-3 text-end">
                                     <button type="button" class="btn btn-primary btn-color" id="reporteGlobal">Reporte
@@ -647,7 +647,7 @@ $docentes = obtenerListaDocentes();
             addDeleteListeners();
             addReportListeners();
             document.getElementById('reporteGlobal').onclick = function () {
-                const mesReporte = document.getElementById('mesReporte').value;
+                const mesReporte = document.getElementById('mesReporte1').value;
                 if (!mesReporte) {
                     Swal.fire({
                         title: 'Error',
@@ -670,7 +670,7 @@ $docentes = obtenerListaDocentes();
                     return;
                 }
 
-                generarReporte('../Reportes/ReporteMensualGlobal.php', '', 'mesReporte');
+                generarReporte('../Reportes/ReporteMensualGlobal.php', '', 'mesReporte1');
             };
 
             document.getElementById('editDocenteForm').addEventListener('submit', function (event) {
