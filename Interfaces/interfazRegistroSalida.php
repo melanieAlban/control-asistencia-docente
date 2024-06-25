@@ -74,12 +74,52 @@ $reporteSemanal = $controladorReportes->reporteSemanal($cedulaE);
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
+<style>
+    .navbar-vino {
+    background-color: #800020; /* Color vino */
+}
 
+.navbar-vino .navbar-nav .nav-link {
+    color: white;
+}
+
+.navbar-vino .navbar-brand {
+    color: white;
+}
+
+.navbar-vino .navbar-nav .nav-link:hover,
+.navbar-vino .navbar-brand:hover {
+    color: #f8f9fa; /* Color blanco más claro al pasar el ratón */
+}
+
+</style>
 <body>
+<nav class="navbar navbar-expand-lg navbar-vino ">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Control de Asistencia</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item me-3">
+                        <a class="nav-link" href="#">Registro</a>
+                    </li>
+                    <li class="nav-item me-3">
+                        <a class="nav-link" href="reportes.php">Reportes</a>
+                    </li>
+                    <li class="nav-item me-3">
+                        <a class="nav-link btn btn-secondary text-white" href="../Controladores/cerrar_sesion_controller.php">Cerrar Sesión</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mt-5">
             <h1>Bienvenido/a <?php echo $_SESSION["nombre"] . ' ' . $_SESSION["apellido"]; ?></h1>
-            <a href="../Controladores/cerrar_sesion_controller.php" class="btn btn-danger">Cerrar Sesión</a>
+            
         </div>
 
         <div class="card text-center mt-3">
@@ -131,99 +171,6 @@ $reporteSemanal = $controladorReportes->reporteSemanal($cedulaE);
             </div>
         </div>
 
-        <div class="card mt-3">
-            <div class="card-body">
-                <h5 class="card-title">Reportes</h5>
-                <div class="mb-3">
-                    <form id="reporteSemanalForm" method="POST" action="../Reportes/ReporteSemanal.php" onsubmit="return validarFechaSemana()" target="_blank">
-                        <input type="hidden" name="cedula" value="<?php echo $_SESSION['cedula']; ?>" />
-                        <input type="week" id="semanaReporte" name="semanaReporte" class="form-control" required />
-                        <button type="submit" class="btn btn-primary mt-2">Imprimir Reporte Semanal</button>
-                    </form>
-
-                </div>
-                <div>
-                    <label for="mesReporte" class="form-label">Selecciona el Mes:</label>
-                    <form id="reporteMensualForm" method="POST" action="../Reportes/ReporteMensual.php" target="_blank" onsubmit="return validarFecha()">
-                        <input type="month" id="mesReporte" name="mesReporte" class="form-control" required />
-                        <input type="hidden" name="cedula" value="<?php echo $_SESSION['cedula']; ?>" />
-                        <button type="submit" class="btn btn-primary mt-2">Imprimir Reporte Mensual</button>
-                    </form>
-
-                </div>
-            </div>
-            <div class="card mt-3">
-                <div class="card-body">
-                    <h5 class="card-title">Reporte Semanal Actual</h5>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Fecha</th>
-                                <th scope="col">Entrada Matutina</th>
-                                <th scope="col">Salida Matutina</th>
-                                <th scope="col">Entrada Vespertina</th>
-                                <th scope="col">Salida Vespertina</th>
-                                <th scope="col">Horas Trabajadas</th>
-                            </tr>
-                        </thead>
-                        <tbody id="reporteSemanal">
-                            <?php if (empty($reporteSemanal)) { ?>
-                                <tr>
-                                    <td colspan="6" class="text-center">No se encontraron registros de esta semana</td>
-                                </tr>
-                            <?php } else { ?>
-                                <?php foreach ($reporteSemanal as $registro) { ?>
-                                    <tr>
-                                        <td><?php echo $registro['fecha']; ?></td>
-                                        <td><?php echo $registro['entradaM']; ?></td>
-                                        <td><?php echo $registro['salidaM']; ?></td>
-                                        <td><?php echo $registro['entradaV']; ?></td>
-                                        <td><?php echo $registro['salidaV']; ?></td>
-                                        <td><?php echo $registro['horasTrabajadas']; ?></td>
-                                    </tr>
-                                <?php } ?>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card mt-3">
-                <div class="card-body">
-                    <h5 class="card-title">Resultados Mensual Actual</h5>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Fecha</th>
-                                <th scope="col">Entrada Matutina</th>
-                                <th scope="col">Salida Matutina</th>
-                                <th scope="col">Entrada Vespertina</th>
-                                <th scope="col">Salida Vespertina</th>
-                                <th scope="col">Horas Trabajadas</th>
-                            </tr>
-                        </thead>
-                        <tbody id="reporteMensual">
-                            <?php if (empty($reporteMensual)) { ?>
-                                <tr>
-                                    <td colspan="6" class="text-center">No se encontraron registros de este mes</td>
-                                </tr>
-                            <?php } else { ?>
-                                <?php foreach ($reporteMensual as $registro) { ?>
-                                    <tr>
-                                        <td><?php echo $registro['fecha']; ?></td>
-                                        <td><?php echo $registro['entradaM']; ?></td>
-                                        <td><?php echo $registro['salidaM']; ?></td>
-                                        <td><?php echo $registro['entradaV']; ?></td>
-                                        <td><?php echo $registro['salidaV']; ?></td>
-                                        <td><?php echo $registro['horasTrabajadas']; ?></td>
-                                    </tr>
-                                <?php } ?>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
         <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
         <script>
