@@ -15,15 +15,17 @@ class RegistroAsistencia
     public function __construct()
     {
         $this->db = (new Conexion())->conectar();
+        $this->fecha = ('2024-07-06');
+        $this->hora = '14:45:00';
     }
 
     public function registrarAsistencia($idEmpleado)
     {
         date_default_timezone_set('America/Guayaquil');
         // $this->fecha = date('Y-m-d');
-        $this->fecha = ('2024-06-26');
+        //$this->fecha = ('2024-06-24');
         // $this->hora = date('H:i:s');
-        $this->hora = '16:30:00';
+        //$this->hora = '10:00:00';
         //$this->hora = '11:50:00';
         //$this->hora = '14:20:00';
         //$this->hora = '17:10:00';
@@ -114,7 +116,7 @@ class RegistroAsistencia
                 $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
                                 WHERE id = '{$this->idAsistencia}'";
                 $this->db->query($updateAsistencia);
-                return "Registro de ingreso exitoso. (Descuento por atraso: $$descuento)";
+                return "Registro de ingreso exitoso.";
             }
 
             // Si llega aqui significa que no registro ni entrada ni salida por ende pierde la jornada
@@ -154,7 +156,7 @@ class RegistroAsistencia
             $this->hora <= $maximoSalidaMat
         ) {
             // Registrar salida matutina si si esta dentro de la hora permitida
-            if ($this->hora <= $maximoSalidaMat) {
+            if ($this->hora <= $maximoSalidaMat && $detalleMatutino->hora_ingreso) {
                 $subtotal_descuento = $detalleMatutino->subtotal_descuento;
                 $generadoJornada = 0;
                 $horasTrabajadas = '00:00:00';
@@ -211,7 +213,7 @@ class RegistroAsistencia
                 $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
                                     WHERE id = $this->idAsistencia";
                 $this->db->query($updateAsistencia);
-                return "Perdió la jornada de la mañana...";
+                return "Perdió la jornada de la mañana, su siguiente entrada es $minimoEntradaVes";
             }
         } else if ($resultDetalleAsistencia->num_rows == 1) { // Entrada vespertina
             // Registrar entrada vespertina
@@ -245,7 +247,7 @@ class RegistroAsistencia
                 $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
                                 WHERE id = '{$this->idAsistencia}'";
                 $this->db->query($updateAsistencia);
-                return "Registro de ingreso exitoso. (Descuento por atraso: $$descuento)";
+                return "Registro de ingreso exitoso.";
             }
 
             // Si llega aqui significa que no registro ni entrada ni salida por ende pierde la jornada
@@ -387,9 +389,10 @@ class RegistroAsistencia
 
     public function obtenerHorasRegistradas($idEmpleado, $fecha)
     {
+        
         $sql = "SELECT hora_ingreso, hora_salida, jornada FROM detalle_asistencias
                 INNER JOIN asistencias ON detalle_asistencias.id_asistencia = asistencias.id
-                WHERE asistencias.id_empleado = $idEmpleado AND asistencias.fecha = '$fecha'";
+                WHERE asistencias.id_empleado = $idEmpleado AND asistencias.fecha = '$this->fecha'";
         $result = $this->db->query($sql);
 
         if ($result->num_rows > 0) {
@@ -419,7 +422,7 @@ class RegistroAsistencia
         AND a.fecha BETWEEN '$fechaInicio' AND '$fechaFin'
         AND da.jornada = h.jornada
         ORDER BY a.fecha ASC";
-        //echo($sql);
+        
         $result = $this->db->query($sql);
         $reportes = [];
         if ($result->num_rows > 0) {
