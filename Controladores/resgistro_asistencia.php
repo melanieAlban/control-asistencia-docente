@@ -205,14 +205,15 @@ class RegistroAsistencia
                     $this->db->query($updateAsistencia);
                 }
                 return "Registro de salida exitoso";
+            } else {
+                // Descontar jornada matutina por atraso
+                $descuento = $this->calcularDescuento($this->horarioMatutino->entrada, $this->horarioMatutino->salida);
+                $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
+                                    WHERE id = $this->idAsistencia";
+                $this->db->query($updateAsistencia);
+                return "Perdió la jornada de la mañana...";
             }
         } else if ($resultDetalleAsistencia->num_rows == 1) { // Entrada vespertina
-            // Descontar jornada matutina por atraso
-            $descuento = $this->calcularDescuento($this->horarioMatutino->entrada, $this->horarioMatutino->salida);
-            $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
-                                WHERE id = $this->idAsistencia";
-            $this->db->query($updateAsistencia);
-
             // Registrar entrada vespertina
             // Restar 15 minutos para la entrada
             $descuento = $asistencia->descuento;
@@ -262,6 +263,7 @@ class RegistroAsistencia
             $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
                                 WHERE id = '{$this->idAsistencia}'";
             $this->db->query($updateAsistencia);
+
 
             return "Su jornada ha terminado, su descuento será de $$descuento";
         } else if ($this->hora <= $maximoSalidaVes) { // 
