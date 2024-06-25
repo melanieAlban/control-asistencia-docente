@@ -15,8 +15,8 @@ class RegistroAsistencia
     public function __construct()
     {
         $this->db = (new Conexion())->conectar();
-        $this->fecha = ('2024-07-06');
-        $this->hora = '14:45:00';
+        $this->fecha = ('2024-06-20');
+        $this->hora = '20:00:57';
     }
 
     public function registrarAsistencia($idEmpleado)
@@ -58,19 +58,12 @@ class RegistroAsistencia
             $this->idAsistencia = $asistencia->id;
         }
 
-        // // Trae detalles
-        // $sqlSelectDetalleAsistencia = "SELECT * FROM detalle_asistencias 
-        //                                 WHERE id_asistencia = '$this->idAsistencia'";
-        // $resultDetalleAsistencia = $this->db->query($sqlSelectDetalleAsistencia);
-        // if ($resultDetalleAsistencia) {
-        // }
-        // $detalleAsistencia = $resultDetalleAsistencia->fetch_object();
-
         $detalleMatutino = null;
         $detalleVespertino = null;
         $sqlSelectDetalleAsistencia = "SELECT * FROM detalle_asistencias 
                                WHERE id_asistencia = '$this->idAsistencia'";
         $resultDetalleAsistencia = $this->db->query($sqlSelectDetalleAsistencia);
+
         // Verificar si la consulta tuvo éxito
         if ($resultDetalleAsistencia) {
             while ($detalleAsistencia = $resultDetalleAsistencia->fetch_object()) {
@@ -82,6 +75,7 @@ class RegistroAsistencia
             }
         }
 
+        // Menos 15 para entradas. Mas 10 para salidas
         $maximoSalidaMat = date("H:i:s", strtotime("+10 minutes", strtotime($this->horarioMatutino->salida)));
         $minimoEntradaVes = date("H:i:s", strtotime("-15 minutes", strtotime($this->horarioVespertino->entrada)));
         $maximoSalidaVes = date("H:i:s", strtotime("+10 minutes", strtotime($this->horarioVespertino->salida)));
@@ -113,6 +107,9 @@ class RegistroAsistencia
                                 (id_asistencia, hora_ingreso, jornada, horas_trabajadas, subtotal_generado, subtotal_descuento) 
                                 VALUES ('$this->idAsistencia', '$this->hora', 'MAT', 0, 0, $descuento)";
                 $this->db->query($sqlInsertDetalleAsistencia);
+                if ($descuento > 60) {
+                    $descuento = 60;
+                }
                 $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
                                 WHERE id = '{$this->idAsistencia}'";
                 $this->db->query($updateAsistencia);
@@ -120,7 +117,6 @@ class RegistroAsistencia
             }
 
             // Si llega aqui significa que no registro ni entrada ni salida por ende pierde la jornada
-
             // Calcula descuento de toda la jornada
             $descuento = $this->calcularDescuento($this->horarioMatutino->entrada, $this->horarioMatutino->salida);
 
@@ -131,6 +127,9 @@ class RegistroAsistencia
             $this->db->query($sqlInsertDetalleAsistencia);
 
             // Cambia el descuento de la asistencia
+            if ($descuento > 60) {
+                $descuento = 60;
+            }
             $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
                                 WHERE id = '{$this->idAsistencia}'";
             $this->db->query($updateAsistencia);
@@ -143,20 +142,22 @@ class RegistroAsistencia
                                 VALUES ('$this->idAsistencia', 'VES', '00:00:00', 0, $subtotal_descuentoVes)";
                 $this->db->query($sqlInsertDetalleAsistencia);
                 $descuentoVes = $descuento + $this->calcularDescuento($this->horarioVespertino->entrada, $this->horarioVespertino->salida);
+                if ($descuentoVes > 60) {
+                    $descuentoVes = 60;
+                }
                 $updateAsistencia = "UPDATE asistencias SET descuento = '$descuentoVes', estado = 'FINALIZADO'
                                 WHERE id = '{$this->idAsistencia}'";
                 $this->db->query($updateAsistencia);
-                return "Su jornada ha terminado, su descuento será de $$descuentoVes";
+                return "Su jornada ha terminado";
             }
-
-            return "Su jornada ha terminado, su descuento será de $$descuento";
+            return "Su jornada ha terminado";
         } else if (
             $resultDetalleAsistencia->num_rows == 1 &&
-            !$detalleMatutino->hora_salida &&
+            !$detalleMatutino->hora_salida &&               // Salida matutina si si esta dentro de la hora de salida
             $this->hora <= $maximoSalidaMat
         ) {
-            // Registrar salida matutina si si esta dentro de la hora permitida
-            if ($this->hora <= $maximoSalidaMat && $detalleMatutino->hora_ingreso) {
+            // Si si tuvo entrada
+            if ($detalleMatutino->hora_ingreso) {
                 $subtotal_descuento = $detalleMatutino->subtotal_descuento;
                 $generadoJornada = 0;
                 $horasTrabajadas = '00:00:00';
@@ -201,22 +202,28 @@ class RegistroAsistencia
                                     WHERE id = $this->idAsistencia";
                 $this->db->query($updateAsistencia);
 
+                // Si se sumo descuento se actualiza en la asistencia
                 if ($asistencia->descuento != $descuento) {
+                    if ($descuento > 60) {
+                        $descuento = 60;
+                    }
                     $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
                                         WHERE id = $this->idAsistencia";
                     $this->db->query($updateAsistencia);
                 }
                 return "Registro de salida exitoso";
-            } else {
+            } else { // Si no tuvo entrada
                 // Descontar jornada matutina por atraso
                 $descuento = $this->calcularDescuento($this->horarioMatutino->entrada, $this->horarioMatutino->salida);
+                if ($descuento > 60) {
+                    $descuento = 60;
+                }
                 $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
                                     WHERE id = $this->idAsistencia";
                 $this->db->query($updateAsistencia);
                 return "Perdió la jornada de la mañana, su siguiente entrada es $minimoEntradaVes";
             }
-        } else if ($resultDetalleAsistencia->num_rows == 1) { // Entrada vespertina
-            // Registrar entrada vespertina
+        } else if ($resultDetalleAsistencia->num_rows == 1) {   // Entrada vespertina
             // Restar 15 minutos para la entrada
             $descuento = $asistencia->descuento;
             $subtotal_descuento = 0;
@@ -244,6 +251,9 @@ class RegistroAsistencia
                                 (id_asistencia, hora_ingreso, jornada, horas_trabajadas, subtotal_generado, subtotal_descuento) 
                                 VALUES ('$this->idAsistencia', '$this->hora', 'VES', 0, 0, $subtotal_descuento)";
                 $this->db->query($sqlInsertDetalleAsistencia);
+                if ($descuento > 60) {
+                    $descuento = 60;
+                }
                 $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
                                 WHERE id = '{$this->idAsistencia}'";
                 $this->db->query($updateAsistencia);
@@ -262,13 +272,16 @@ class RegistroAsistencia
             $this->db->query($sqlInsertDetalleAsistencia);
 
             // Cambia el descuento de la asistencia
+            if ($descuento > 60) {
+                $descuento = 60;
+            }
             $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento' 
                                 WHERE id = '{$this->idAsistencia}'";
             $this->db->query($updateAsistencia);
 
 
-            return "Su jornada ha terminado, su descuento será de $$descuento";
-        } else if ($this->hora <= $maximoSalidaVes) { // 
+            return "Su jornada ha terminado";
+        } else if ($this->hora <= $maximoSalidaVes && $detalleVespertino->hora_ingreso) { // 
             $generadoJornada = 0;
             $horasTrabajadas = '00:00:00';
             $descuento = $asistencia->descuento;
@@ -318,6 +331,9 @@ class RegistroAsistencia
             $this->db->query($updateAsistencia);
 
             if ($asistencia->descuento != $descuento) {
+                if ($descuento > 60) {
+                    $descuento = 60;
+                }
                 $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento', estado = 'FINALIZADO' 
                                         WHERE id = $this->idAsistencia";
                 $this->db->query($updateAsistencia);
@@ -326,10 +342,13 @@ class RegistroAsistencia
         } else {
             $descuento = $asistencia->descuento;
             $descuento += $this->calcularDescuento($this->horarioVespertino->entrada, $this->horarioVespertino->salida);
+            if ($descuento > 60) {
+                $descuento = 60;
+            }
             $updateAsistencia = "UPDATE asistencias SET descuento = '$descuento', estado = 'FINALIZADO'
                                 WHERE id = $this->idAsistencia";
             $this->db->query($updateAsistencia);
-            return "Su jornada ha terminado, su descuento será de $$descuento";
+            return "Su jornada ha terminado";
         }
     }
 
@@ -389,7 +408,7 @@ class RegistroAsistencia
 
     public function obtenerHorasRegistradas($idEmpleado, $fecha)
     {
-        
+
         $sql = "SELECT hora_ingreso, hora_salida, jornada FROM detalle_asistencias
                 INNER JOIN asistencias ON detalle_asistencias.id_asistencia = asistencias.id
                 WHERE asistencias.id_empleado = $idEmpleado AND asistencias.fecha = '$this->fecha'";
@@ -422,7 +441,7 @@ class RegistroAsistencia
         AND a.fecha BETWEEN '$fechaInicio' AND '$fechaFin'
         AND da.jornada = h.jornada
         ORDER BY a.fecha ASC";
-        
+
         $result = $this->db->query($sql);
         $reportes = [];
         if ($result->num_rows > 0) {
@@ -502,33 +521,28 @@ class RegistroAsistencia
                     $reportes[$row['fecha']]['entradaM'] = $row['hora_ingreso'];
                     $reportes[$row['fecha']]['salidaM'] = $row['hora_salida'];
                     $reportes[$row['fecha']]['horasTrabajadas'] = $this->sumarHoras($reportes[$row['fecha']]['horasTrabajadas'], $row['horas_trabajadas']);
-                    
                 } elseif ($row['jornada'] == 'VES') {
                     $reportes[$row['fecha']]['entradaV'] = $row['hora_ingreso'];
                     $reportes[$row['fecha']]['salidaV'] = $row['hora_salida'];
                     $reportes[$row['fecha']]['horasTrabajadas'] = $this->sumarHoras($reportes[$row['fecha']]['horasTrabajadas'], $row['horas_trabajadas']);
-                    
                 }
             }
         }
         return array_values($reportes);
     }
 
-    private function sumarHoras($hora1, $hora2) {
+    private function sumarHoras($hora1, $hora2)
+    {
         $t1 = new DateTime($hora1);
         $t2 = new DateTime($hora2);
-        
+
         $interval1 = new DateInterval('PT' . $t1->format('H') . 'H' . $t1->format('i') . 'M' . $t1->format('s') . 'S');
         $interval2 = new DateInterval('PT' . $t2->format('H') . 'H' . $t2->format('i') . 'M' . $t2->format('s') . 'S');
-        
+
         $horasTotales = new DateTime('00:00:00');
         $horasTotales->add($interval1);
         $horasTotales->add($interval2);
-    
+
         return $horasTotales->format('H:i:s');
     }
-    
-    
-
-    
 }
