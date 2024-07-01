@@ -64,7 +64,7 @@ class RegistroAsistencia
                                WHERE id_asistencia = '$this->idAsistencia'";
         $resultDetalleAsistencia = $this->db->query($sqlSelectDetalleAsistencia);
 
-        // Verificar si la consulta tuvo éxito
+        // Traer los dos detalles
         if ($resultDetalleAsistencia) {
             while ($detalleAsistencia = $resultDetalleAsistencia->fetch_object()) {
                 if ($detalleAsistencia->jornada == "MAT") {
@@ -86,7 +86,7 @@ class RegistroAsistencia
             $minimoEntrada = date("H:i:s", strtotime("-15 minutes", strtotime($this->horarioMatutino->entrada)));
             $subtotal_descuento = 0;
 
-            // Si la intenta entrar antes de 15 min de su hora de entrada
+            // Si intenta entrar antes de 15 min de su hora de entrada
             if ($this->hora < $minimoEntrada) {
                 return "La hora de ingreso es desde $minimoEntrada";
             }
