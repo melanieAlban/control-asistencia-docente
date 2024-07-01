@@ -19,6 +19,7 @@ $docentes = obtenerListaDocentes();
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,11 +32,13 @@ $docentes = obtenerListaDocentes();
         body {
             background-color: #f8f9fa;
         }
+
         .header {
             background-color: #800020;
             color: white;
             padding: 10px 15px;
         }
+
         .sidebar {
             min-height: 100vh;
             background-color: #343a40;
@@ -45,9 +48,11 @@ $docentes = obtenerListaDocentes();
             padding-top: 20px;
             position: fixed;
         }
+
         .sidebar .nav-item {
             margin-bottom: 10px;
         }
+
         .sidebar .nav-link {
             color: white;
             display: flex;
@@ -55,93 +60,112 @@ $docentes = obtenerListaDocentes();
             padding: 10px;
             font-size: 18px;
         }
+
         .sidebar .nav-link i {
             margin-right: 10px;
         }
+
         .sidebar .nav-link:hover {
             background-color: #495057;
         }
+
         .btn-color {
             background-color: #800020;
             border-color: #800020;
         }
+
         .btn-color:hover {
             background-color: #5a0014;
             border-color: #5a0014;
         }
+
         .sidebar-img {
             width: 80%;
             padding: 10px;
             border-radius: 50%;
         }
+
         .sidebar h5 {
             color: white;
             text-align: center;
             margin-top: 10px;
         }
+
         .sidebar-footer {
             margin-top: auto;
             padding: 10px 0;
             background-color: #343a40;
             color: white;
         }
+
         .table-icons {
             text-align: center;
         }
+
         .icon-edit {
             color: #ffc107;
         }
+
         .icon-report {
             color: #800020;
         }
+
         .icon-delete {
             color: #6c757d;
         }
+
         .swal2-confirm {
             background-color: #800020 !important;
             border-color: #800020 !important;
         }
+
         .swal2-cancel {
             background-color: #6c757d !important;
             border-color: #6c757d !important;
         }
+
         .icon-edit:hover,
         .icon-report:hover,
         .icon-delete:hover {
             color: inherit;
             text-decoration: none;
         }
+
         .search-container {
             display: flex;
             justify-content: center;
             margin-bottom: 1rem;
         }
+
         #searchCedula {
             width: 50%;
             max-width: 300px;
         }
+
         .modal-body {
             max-height: 600px;
             overflow-y: auto;
         }
-        
+
         .modal-content {
             border-radius: 1rem;
         }
-        .btn-color,
-.btn-color:focus,
-.btn-color:active {
-    background-color: #800020;
-    border-color: #800020;
-    color: white;
-    outline: none;
-    box-shadow: none; /* Quitar el resplandor del botón cuando se enfoca o se activa */
-}
 
-.btn-color:hover {
-    background-color: #5a0014;
-    border-color: #5a0014;
-}
+        .btn-color,
+        .btn-color:focus,
+        .btn-color:active {
+            background-color: #800020;
+            border-color: #800020;
+            color: white;
+            outline: none;
+            box-shadow: none;
+            /* Quitar el resplandor del botón cuando se enfoca o se activa */
+        }
+
+        .btn-color:hover {
+            background-color: #5a0014;
+            border-color: #5a0014;
+        }
     </style>
 </head>
 
@@ -186,8 +210,21 @@ $docentes = obtenerListaDocentes();
                 </div>
                 <div class="card mt-4">
                     <div class="card-body">
-                        <div class="search-container">
-                            <input type="text" class="form-control" placeholder="Buscar por cédula" id="searchCedula">
+                        <div class="container mt-5">
+                            <div class="row align-items-end">
+                                <div class="col-md-7 mb-3">
+                                    <input type="text" class="form-control" placeholder="Buscar por cédula"
+                                        id="searchCedula">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="mesReporte1" class="form-label">Mes:</label>
+                                    <input type="month" id="mesReporte1" name="mesReporte1" class="form-control">
+                                </div>
+                                <div class="col-md-2 mb-3 text-end">
+                                    <button type="button" class="btn btn-primary btn-color" id="reporteGlobal">Reporte
+                                        Global</button>
+                                </div>
+                            </div>
                         </div>
                         <table class="table table-bordered">
                             <thead>
@@ -229,7 +266,8 @@ $docentes = obtenerListaDocentes();
         </div>
     </div>
     <!-- Modal para editar docente -->
-    <div class="modal fade" id="editDocenteModal" tabindex="-1" aria-labelledby="editDocenteModalLabel" aria-hidden="true">
+    <div class="modal fade" id="editDocenteModal" tabindex="-1" aria-labelledby="editDocenteModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -241,38 +279,45 @@ $docentes = obtenerListaDocentes();
                         <div class="mb-3">
                             <label for="editCedulaDocente" class="form-label">Cédula</label>
                             <input type="hidden" id="editIdDocente" name="idDocente" />
-                            <input type="text" class="form-control" id="editCedulaDocente" name="cedulaDocente" readonly />
+                            <input type="text" class="form-control" id="editCedulaDocente" name="cedulaDocente"
+                                readonly />
                         </div>
 
                         <div class="mb-3">
                             <label for="editNombreDocente" class="form-label">Nombre</label>
-                            <input type="text" class="form-control" id="editNombreDocente" name="nombreDocente" required />
+                            <input type="text" class="form-control" id="editNombreDocente" name="nombreDocente"
+                                required />
                         </div>
                         <div class="mb-3">
                             <label for="editApellidoDocente" class="form-label">Apellido</label>
-                            <input type="text" class="form-control" id="editApellidoDocente" name="apellidoDocente" required />
+                            <input type="text" class="form-control" id="editApellidoDocente" name="apellidoDocente"
+                                required />
                         </div>
                         <div class="row">
                             <div class="col-md-6">
                                 <h6>Jornada Matutina</h6>
                                 <div class="mb-3">
                                     <label for="editHoraInicioMatutina" class="form-label">Hora de Inicio</label>
-                                    <select id="editHoraInicioMatutina" name="horaInicioMatutina" class="form-control" required></select>
+                                    <select id="editHoraInicioMatutina" name="horaInicioMatutina" class="form-control"
+                                        required></select>
                                 </div>
                                 <div class="mb-3">
                                     <label for="editHoraFinMatutina" class="form-label">Hora de Fin</label>
-                                    <select id="editHoraFinMatutina" name="horaFinMatutina" class="form-control" required></select>
+                                    <select id="editHoraFinMatutina" name="horaFinMatutina" class="form-control"
+                                        required></select>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <h6>Jornada Vespertina</h6>
                                 <div class="mb-3">
                                     <label for="editHoraInicioVespertina" class="form-label">Hora de Inicio</label>
-                                    <select id="editHoraInicioVespertina" name="horaInicioVespertina" class="form-control" required></select>
+                                    <select id="editHoraInicioVespertina" name="horaInicioVespertina"
+                                        class="form-control" required></select>
                                 </div>
                                 <div class="mb-3">
                                     <label for="editHoraFinVespertina" class="form-label">Hora de Fin</label>
-                                    <select id="editHoraFinVespertina" name="horaFinVespertina" class="form-control" required></select>
+                                    <select id="editHoraFinVespertina" name="horaFinVespertina" class="form-control"
+                                        required></select>
                                 </div>
                             </div>
                         </div>
@@ -297,10 +342,12 @@ $docentes = obtenerListaDocentes();
                             <div class="col-6">
                                 <div class="mb-3">
                                     <label for="semanaReporte" class="form-label">Semana:</label>
-                                    <input type="week" id="semanaReporte" name="semanaReporte" class="form-control mb-3">
+                                    <input type="week" id="semanaReporte" name="semanaReporte"
+                                        class="form-control mb-3">
                                 </div>
                                 <div class="text-center">
-                                    <button type="button" class="btn btn-primary btn-color" id="reporteSemanal">Reporte Semanal</button>
+                                    <button type="button" class="btn btn-primary btn-color" id="reporteSemanal">Reporte
+                                        Semanal</button>
                                 </div>
                             </div>
                             <div class="col-6">
@@ -309,7 +356,8 @@ $docentes = obtenerListaDocentes();
                                     <input type="month" id="mesReporte" name="mesReporte" class="form-control mb-3">
                                 </div>
                                 <div class="text-center">
-                                    <button type="button" class="btn btn-secondary btn-color" id="reporteMensual">Reporte Mensual</button>
+                                    <button type="button" class="btn btn-secondary btn-color"
+                                        id="reporteMensual">Reporte Mensual</button>
                                 </div>
                             </div>
                         </div>
@@ -322,7 +370,8 @@ $docentes = obtenerListaDocentes();
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
+          
             function updateTimeOptions(element, startTime, endTime) {
                 let options = "";
                 let current = new Date(`2021-01-01T${startTime}:00`);
@@ -351,8 +400,8 @@ $docentes = obtenerListaDocentes();
             }
 
             function addEditListeners() {
-                document.querySelectorAll('.icon-edit').forEach(function(element) {
-                    element.addEventListener('click', function() {
+                document.querySelectorAll('.icon-edit').forEach(function (element) {
+                    element.addEventListener('click', function () {
                         const docenteId = this.getAttribute('data-id');
                         fetch(`../Controladores/obtenerDocente.php?id=${docenteId}`)
                             .then(response => response.json())
@@ -365,8 +414,8 @@ $docentes = obtenerListaDocentes();
             }
 
             function addDeleteListeners() {
-                document.querySelectorAll('.icon-delete').forEach(function(element) {
-                    element.addEventListener('click', function() {
+                document.querySelectorAll('.icon-delete').forEach(function (element) {
+                    element.addEventListener('click', function () {
                         const docenteId = this.getAttribute('data-id');
                         Swal.fire({
                             title: '¿Está seguro?',
@@ -385,32 +434,32 @@ $docentes = obtenerListaDocentes();
                                     },
                                     body: JSON.stringify({ id: docenteId, estado: 'INA' })
                                 })
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.success) {
-                                        Swal.fire(
-                                            'Eliminado',
-                                            'El docente ha sido eliminado.',
-                                            'success'
-                                        ).then(() => {
-                                            location.reload();
-                                        });
-                                    } else {
-                                        Swal.fire(
-                                            'Error',
-                                            'Hubo un problema al eliminar el docente.',
-                                            'error'
-                                        );
-                                    }
-                                })
-                                .catch(error => console.error('Error:', error));
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            Swal.fire(
+                                                'Eliminado',
+                                                'El docente ha sido eliminado.',
+                                                'success'
+                                            ).then(() => {
+                                                location.reload();
+                                            });
+                                        } else {
+                                            Swal.fire(
+                                                'Error',
+                                                'Hubo un problema al eliminar el docente.',
+                                                'error'
+                                            );
+                                        }
+                                    })
+                                    .catch(error => console.error('Error:', error));
                             }
                         });
                     });
                 });
             }
 
-            document.getElementById('searchCedula').addEventListener('input', function() {
+            document.getElementById('searchCedula').addEventListener('input', function () {
                 const cedula = this.value;
                 fetch(`../Controladores/obtenerDocentes.php?cedula=${cedula}`)
                     .then(response => response.json())
@@ -444,14 +493,14 @@ $docentes = obtenerListaDocentes();
                     .catch(error => console.error('Error:', error));
             });
 
-            document.getElementById('editNombreDocente').addEventListener('input', function() {
+            document.getElementById('editNombreDocente').addEventListener('input', function () {
                 this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
                 if (this.value.length > 30) {
                     this.value = this.value.slice(0, 30);
                 }
             });
 
-            document.getElementById('editApellidoDocente').addEventListener('input', function() {
+            document.getElementById('editApellidoDocente').addEventListener('input', function () {
                 this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
                 if (this.value.length > 30) {
                     this.value = this.value.slice(0, 30);
@@ -488,15 +537,17 @@ $docentes = obtenerListaDocentes();
                 }
 
                 $('#editDocenteModal').modal('show');
+
+               
             }
 
             function addReportListeners() {
-                document.querySelectorAll('.icon-report').forEach(function(element) {
-                    element.addEventListener('click', function() {
+                document.querySelectorAll('.icon-report').forEach(function (element) {
+                    element.addEventListener('click', function () {
                         const docenteId = this.getAttribute('data-id');
                         $('#reporteModal').modal('show');
 
-                        document.getElementById('reporteSemanal').onclick = function() {
+                        document.getElementById('reporteSemanal').onclick = function () {
                             const semanaReporte = document.getElementById('semanaReporte').value;
                             if (!semanaReporte) {
                                 Swal.fire({
@@ -521,7 +572,7 @@ $docentes = obtenerListaDocentes();
                             generarReporte('../Reportes/ReporteSemanal.php', docenteId, 'semanaReporte');
                         };
 
-                        document.getElementById('reporteMensual').onclick = function() {
+                        document.getElementById('reporteMensual').onclick = function () {
                             const mesReporte = document.getElementById('mesReporte').value;
                             if (!mesReporte) {
                                 Swal.fire({
@@ -595,8 +646,34 @@ $docentes = obtenerListaDocentes();
             addEditListeners();
             addDeleteListeners();
             addReportListeners();
+            document.getElementById('reporteGlobal').onclick = function () {
+                const mesReporte = document.getElementById('mesReporte1').value;
+                if (!mesReporte) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Por favor, seleccione un mes.',
+                        icon: 'error'
+                    });
+                    return;
+                }
 
-            document.getElementById('editDocenteForm').addEventListener('submit', function(event) {
+                const [year, month] = mesReporte.split('-');
+                const currentDate = new Date();
+                const currentYear = currentDate.getFullYear();
+                const currentMonth = currentDate.getMonth() + 1;
+                if (year > currentYear || (year == currentYear && month > currentMonth)) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'No se puede seleccionar un mes futuro.',
+                        icon: 'error'
+                    });
+                    return;
+                }
+
+                generarReporte('../Reportes/ReporteMensualGlobal.php', '', 'mesReporte1');
+            };
+
+            document.getElementById('editDocenteForm').addEventListener('submit', function (event) {
                 event.preventDefault();
 
                 const horaInicioMatutina = document.getElementById("editHoraInicioMatutina").value;
@@ -623,27 +700,28 @@ $docentes = obtenerListaDocentes();
                     method: 'POST',
                     body: formData
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            title: 'Éxito',
-                            text: 'El docente se ha actualizado correctamente.',
-                            icon: 'success'
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'Error',
-                            text: 'Error al actualizar el docente: ' + data.message,
-                            icon: 'error'
-                        });
-                    }
-                })
-                .catch(error => console.error('Error:', error));
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Éxito',
+                                text: 'El docente se ha actualizado correctamente.',
+                                icon: 'success'
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'Error al actualizar el docente: ' + data.message,
+                                icon: 'error'
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
             });
         });
     </script>
 </body>
+
 </html>

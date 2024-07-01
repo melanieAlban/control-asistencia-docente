@@ -11,7 +11,7 @@ if ($_SESSION['rol'] == 'administrador') {
 
 function registrarAsistencia($tipo)
 {
-    require_once('../Controladores/resgistro_asistencia.php');
+    require_once ('../Controladores/resgistro_asistencia.php');
     $registroAsitencia = new RegistroAsistencia();
     $mensaje = $registroAsitencia->registrarAsistencia($_SESSION['id']);
     return $mensaje;
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-require_once('../Controladores/resgistro_asistencia.php');
+require_once ('../Controladores/resgistro_asistencia.php');
 
 $idEmpleado = $_SESSION['id'];
 $fecha = date('Y-m-d');
@@ -55,7 +55,7 @@ if ($horasRegistradas) {
     $registros[] = $registro;
 }
 
-require_once('../Controladores/resgistro_asistencia.php');
+require_once ('../Controladores/resgistro_asistencia.php');
 $controladorReportes = new RegistroAsistencia();
 $cedulaE = $_SESSION['cedula'];
 $reporteMensual = $controladorReportes->reporteMensual($cedulaE);
@@ -151,7 +151,7 @@ $reporteSemanal = $controladorReportes->reporteSemanal($cedulaE);
             <div class="card-body">
                 <h4 class="card-title">Tus Horarios de Trabajo</h4>
                 <?php
-                require_once("../Controladores/obtener_horarios.php");
+                require_once ("../Controladores/obtener_horarios.php");
                 ?>
                 <p>Jornada Matutina: <?php echo $jornadaMatutina; ?></p>
                 <p>Jornada Vespertina: <?php echo $jornadaVespertina; ?></p>
@@ -251,7 +251,7 @@ $reporteSemanal = $controladorReportes->reporteSemanal($cedulaE);
                 return true; // Permite que el formulario se envíe
             }
 
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 <?php
                 if (isset($_SESSION['success'])) {
                     echo "Swal.fire({
@@ -272,7 +272,7 @@ $reporteSemanal = $controladorReportes->reporteSemanal($cedulaE);
             });
 
 
-            window.onload = function() {
+            window.onload = function () {
                 verificarRegistroHoy();
             };
 
@@ -309,7 +309,7 @@ $reporteSemanal = $controladorReportes->reporteSemanal($cedulaE);
                 resultado.innerHTML = '';
                 var registrosSemana = registros.slice(-7);
 
-                registrosSemana.forEach(function(r) {
+                registrosSemana.forEach(function (r) {
                     resultado.innerHTML += `
                     <tr>
                         <td>${r.dia}</td>
@@ -332,7 +332,7 @@ $reporteSemanal = $controladorReportes->reporteSemanal($cedulaE);
                     var registrosMes = registros.filter(r => r.fecha.startsWith(mesSeleccionado));
 
                     if (registrosMes.length > 0) {
-                        registrosMes.forEach(function(r) {
+                        registrosMes.forEach(function (r) {
                             resultado.innerHTML += `
                             <tr>
                                 <td>${r.dia}</td>
